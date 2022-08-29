@@ -122,17 +122,20 @@ class _NavBarPageState extends State<NavBarPage> {
                   children: [
                     Icon(
                       currentIndex == 0 ? Icons.home : Icons.home,
-                      color:
-                          currentIndex == 0 ? Color(0xFF00A2FD) : Color(0xFF727272),
-                      size: 24,
+                      color: currentIndex == 0
+                          ? Color(0xFF00A2FD)
+                          : Color(0xFF727272),
+                      size: currentIndex == 0 ? 26.0 : 23.0,
                     ),
                     Text(
                       'ตารางงาน',
                       overflow: TextOverflow.ellipsis,
                       style: FlutterFlowTheme.of(context).subtitle1.override(
-                            fontFamily:
-                                FlutterFlowTheme.of(context).subtitle1Family,
-                            color: FlutterFlowTheme.of(context).primaryBlack,
+                            fontFamily: 'Mitr',
+                            color: currentIndex == 0
+                                ? Color(0xFF00A2FD)
+                                : Color(0xFF727272),
+                            fontSize: currentIndex == 0 ? 26.0 : 23.0,
                           ),
                     ),
                   ],
@@ -146,14 +149,21 @@ class _NavBarPageState extends State<NavBarPage> {
                       currentIndex == 1
                           ? Icons.calendar_today
                           : Icons.calendar_today,
-                      color:
-                          currentIndex == 1 ? Color(0xFF00A2FD) : Color(0xFF727272),
-                      size: 24,
+                      color: currentIndex == 1
+                          ? Color(0xFF00A2FD)
+                          : Color(0xFF727272),
+                      size: currentIndex == 1 ? 26.0 : 23.0,
                     ),
                     Text(
-                      'ปฏิทิน',
+                      'จัดตารางเวร',
                       overflow: TextOverflow.ellipsis,
-                      style: FlutterFlowTheme.of(context).subtitle1,
+                      style: FlutterFlowTheme.of(context).subtitle1.override(
+                            fontFamily: 'Mitr',
+                            color: currentIndex == 1
+                                ? Color(0xFF00A2FD)
+                                : Color(0xFF727272),
+                            fontSize: currentIndex == 1 ? 26.0 : 23.0,
+                          ),
                     ),
                   ],
                 ),
@@ -163,15 +173,24 @@ class _NavBarPageState extends State<NavBarPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      currentIndex == 2 ? Icons.notifications : Icons.notifications,
-                      color:
-                          currentIndex == 2 ? Color(0xFF00A2FD) : Color(0xFF727272),
-                      size: 24,
+                      currentIndex == 2
+                          ? Icons.notifications
+                          : Icons.notifications,
+                      color: currentIndex == 2
+                          ? Color(0xFF00A2FD)
+                          : Color(0xFF727272),
+                      size: currentIndex == 2 ? 26.0 : 23.0,
                     ),
                     Text(
                       'แจ้งเตือน',
                       overflow: TextOverflow.ellipsis,
-                      style: FlutterFlowTheme.of(context).subtitle1,
+                      style: FlutterFlowTheme.of(context).subtitle1.override(
+                            fontFamily: 'Mitr',
+                            color: currentIndex == 2
+                                ? Color(0xFF00A2FD)
+                                : Color(0xFF727272),
+                            fontSize: currentIndex == 2 ? 26.0 : 23.0,
+                          ),
                     ),
                   ],
                 ),
@@ -182,19 +201,21 @@ class _NavBarPageState extends State<NavBarPage> {
                   children: [
                     Icon(
                       currentIndex == 3 ? Icons.history : Icons.history,
-                      color:
-                          currentIndex == 3 ? Color(0xFF00A2FD) : Color(0xFF727272),
-                      size: 30,
+                      color: currentIndex == 3
+                          ? Color(0xFF00A2FD)
+                          : Color(0xFF727272),
+                      size: currentIndex == 3 ? 26.0 : 23.0,
                     ),
                     Text(
                       'ประวัติ',
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: currentIndex == 3
-                            ? Color(0xFF00A2FD)
-                            : Color(0xFF727272),
-                        fontSize: 11.0,
-                      ),
+                      style: FlutterFlowTheme.of(context).subtitle1.override(
+                            fontFamily: 'Mitr',
+                            color: currentIndex == 3
+                                ? Color(0xFF00A2FD)
+                                : Color(0xFF727272),
+                            fontSize: currentIndex == 3 ? 26.0 : 23.0,
+                          ),
                     ),
                   ],
                 ),
@@ -205,19 +226,28 @@ class _NavBarPageState extends State<NavBarPage> {
                   children: [
                     Icon(
                       currentIndex == 4 ? Icons.group : Icons.group,
-                      color:
-                          currentIndex == 4 ? Color(0xFF00A2FD) : Color(0xFF727272),
-                      size: 30,
+                      color: currentIndex == 4
+                          ? Color(0xFF00A2FD)
+                          : Color(0xFF727272),
+                      size: currentIndex == 4 ? 26.0 : 23.0,
                     ),
                     Text(
                       'กลุ่ม',
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: currentIndex == 4
-                            ? Color(0xFF00A2FD)
-                            : Color(0xFF727272),
-                        fontSize: 11.0,
-                      ),
+                      style: FlutterFlowTheme.of(context).subtitle1.override(
+                            fontFamily: 'Mitr',
+                            color: currentIndex == 4
+                                ? Color(0xFF00A2FD)
+                                : Color(0xFF727272),
+                            fontSize: currentIndex == 4 ? 26.0 : 23.0,
+                          ),
+                      // TextStyle(
+                      //   fontSize: currentIndex == 4 ? 35.0 : 30.0,
+                      //   color: currentIndex == 4
+                      //       ? Color(0xFF00A2FD)
+                      //       : Color(0xFF727272),
+
+                      // ),
                     ),
                   ],
                 ),

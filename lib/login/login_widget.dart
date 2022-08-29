@@ -26,6 +26,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   TextEditingController? textController2;
   late bool passwordVisibility;
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  late String checkActor;
 
   @override
   void initState() {
@@ -216,52 +217,64 @@ class _LoginWidgetState extends State<LoginWidget> {
                                         (stateLogin?.jsonBody ?? ''),
                                       ).toString();
                                     });
-                                    // getpresentoutput = await GetPresentCall.call(
-                                    //   token: FFAppState().tokenStore,
-                                    // );
-                                    print("frist ${FFAppState().tokenStore}");
-                                    await actions.notifica(
-                                      context,
-                                      'เข้าสู่ระบบสำเร็จ',
-                                    );
+                                    checkActor = PostLoginCall.resActor(
+                                      (stateLogin?.jsonBody ?? ''),
+                                    ).toString();
+                                    if (checkActor == "หัวหน้าพยาบาล") {
+                                      // getpresentoutput = await GetPresentCall.call(
+                                      //   token: FFAppState().tokenStore,
+                                      // );
+                                      print("frist ${FFAppState().tokenStore}");
+                                      await actions.notifica(
+                                        context,
+                                        'เข้าสู่ระบบสำเร็จ',
+                                      );
 
-                                    // stateCreateTable =
-                                    //     await CreateTableCall.call();
-                                    // if (((stateCreateTable?.statusCode ?? 200)) ==
-                                    //         200
-                                    //     //     &&
-                                    //     // ((getpresentoutput?.statusCode ?? 200)) ==
-                                    //     //     200
-                                    //         ) {
-                                    // await actions.notifica(
-                                    //   context,
-                                    //   'สร้างตารางสำเร็จ',
-                                    // );
-                                    // setState(() {
-                                    //   FFAppState().namegroup =
-                                    //       GetPresentCall.oneNameGroup(
-                                    //     (getpresentoutput?.jsonBody ?? ''),
-                                    //   ).toString();
-                                    // });
+                                      // stateCreateTable =
+                                      //     await CreateTableCall.call();
+                                      // if (((stateCreateTable?.statusCode ?? 200)) ==
+                                      //         200
+                                      //     //     &&
+                                      //     // ((getpresentoutput?.statusCode ?? 200)) ==
+                                      //     //     200
+                                      //         ) {
+                                      // await actions.notifica(
+                                      //   context,
+                                      //   'สร้างตารางสำเร็จ',
+                                      // );
+                                      // setState(() {
+                                      //   FFAppState().namegroup =
+                                      //       GetPresentCall.oneNameGroup(
+                                      //     (getpresentoutput?.jsonBody ?? ''),
+                                      //   ).toString();
+                                      // });
 
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => NavBarPage(
-                                            initialPage: 'workschedule'),
-                                      ),
-                                    );
-                                    // } else {
-                                    //   await actions.notifica(
-                                    //     context,
-                                    //     'สร้างตารางไม่สำเร็จ',
-                                    //   );
-                                    // }
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => NavBarPage(
+                                              initialPage: 'workschedule'),
+                                        ),
+                                      );
+                                      // } else {
+                                      //   await actions.notifica(
+                                      //     context,
+                                      //     'สร้างตารางไม่สำเร็จ',
+                                      //   );
+                                      // }
+                                    } else {
+                                      await actions.notifica(
+                                        context,
+                                        'คุณไม่ใช้หัวหน้าพยาบาล',
+                                      );
+                                      FFAppState().tokenStore = "";
+                                    }
                                   } else {
                                     await actions.notifica(
                                       context,
                                       'ชื่อหรือรหัสผ่านไม่ถูกต้อง',
                                     );
+                                    FFAppState().tokenStore = "";
                                   }
 
                                   setState(() {});
@@ -280,6 +293,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                     context,
                                     'เกิดข้อผิดพลาด',
                                   );
+                                  FFAppState().tokenStore = "";
                                   setState(() {});
                                 }
                               },

@@ -237,6 +237,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                   FlutterFlowTheme.of(context).secondaryWhite,
                             ),
                         inactiveDateStyle: FlutterFlowTheme.of(context).title2,
+                        daysOfWeekHeight: 50,
                       ),
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(0, 45, 0, 27),

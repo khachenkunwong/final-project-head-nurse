@@ -35,10 +35,8 @@ class _GroupWidgetState extends State<GroupWidget> {
   var refresh;
   Future<List<Group>> getMemberModel({required String token}) async {
     try {
-      setState(() {
-        
-      });
-      print(token);
+      setState(() {});
+      print("token");
       final res = await http.get(
         Uri.parse("$url/api/group/me/member"),
         headers: {
@@ -47,8 +45,8 @@ class _GroupWidgetState extends State<GroupWidget> {
           "x-access-token": "$token"
         },
       );
-      // print("res.body1 ${res.statusCode}");
-      // print("res.body1 ${res.body}");
+      print("res.body1 ${res.statusCode}");
+      print("res.body1 ${res.body}");
 
       // if (checkUnauthorized) {
       //   await actions.notifica(
@@ -115,6 +113,51 @@ class _GroupWidgetState extends State<GroupWidget> {
         context,
         'คุณไม่ใช่หัวหน้าพยาบาล',
       );
+      return [];
+    } catch (error) {
+      print(error);
+    }
+    return [];
+  }
+
+  Future<List<Datum>> deleteMember(
+      {required String groupId, required String email}) async {
+    try {
+      var body = jsonEncode({
+        'groupId': groupId.toString(),
+        'email': email.toString(),
+      });
+      final res = await http.delete(
+        Uri.parse("$url/api/group/removemember"),
+        headers: {
+          'content-type': 'application/json',
+          "Access-Control_Allow_Origin": "*",
+          "x-access-token": "${FFAppState().tokenStore}"
+        },
+        body: body,
+      );
+
+      print("res.body23 ${res.statusCode}");
+      print("res.body23 ${res.body}");
+
+      // if (checkUnauthorized) {
+      //   await actions.notifica(
+      //     context,
+      //     'คุณไม่ใช่หัวหน้าพยาบาล',
+      //   );
+      //   return [];
+      // }
+
+      if (res.statusCode == 200) {
+        print(
+            "yyyyy ${res.body}}");
+        await actions.notifica(context, "ลบสมาชิกสำเร็จ");
+      } else {
+        print(
+            "yyyyy ${res.body}}");
+        await actions.notifica(context, "ลบสมาชิกไม่สำเร็จ");
+      }
+
       return [];
     } catch (error) {
       print(error);
@@ -744,10 +787,13 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                             child:
                                                                                 InkWell(
                                                                               onTap: () async {
-                                                                                getDeleteMember = await DeleteMemberInGroupCall.call(token: FFAppState().tokenStore, groupId: "${ItemGroup.id}", userId: "${itemMember.id}");
-                                                                                print("id group ${ItemGroup.id} id member ${itemMember.id} fristName ${itemMember.fristName} lastName ${itemMember.lastName}");
-                                                                                print("ลบสมาชิก");
-                                                                                print("${DeleteMemberInGroupCall.getRes(getDeleteMember?.jsonBody ?? '')}}");
+                                                                                // print("yyyy ${ItemGroup.id} - ${itemMember.email}");
+                                                                                // getDeleteMember = await DeleteMemberInGroupCall.call(groupId: "${ItemGroup.id}", email: "${itemMember.email}", token: FFAppState().tokenStore);
+                                                                                // print("id group ${ItemGroup.id} id member ${itemMember.email} fristName ${itemMember.fristName} lastName ${itemMember.lastName}");
+                                                                                // print("ลบสมาชิก");
+                                                                                await deleteMember(email: "${itemMember.email}", groupId: "${ItemGroup.id}");
+                                                                                print("ทำงานเสร็จแล้ว");
+
                                                                                 setState(() {});
                                                                               },
                                                                               child: Text(

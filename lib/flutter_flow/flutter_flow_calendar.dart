@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
@@ -13,10 +15,20 @@ extension DateTimeExtension on DateTime {
 }
 
 bool isSameDay(DateTime? a, DateTime? b) {
+  var tt = 1;
+  // print(
+  //     "arm $a == $b a == null ${a == null} b == null ${b == null} a == null || b == null ${a == null || b == null}");
   if (a == null || b == null) {
+    tt = tt + 1;
+    // print("tt $tt");
     return false;
   }
+  // print(tt);
   return a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
+int getHashCode(DateTime key) {
+  return key.day * 1000000 + key.month * 10000 + key.year;
 }
 
 bool isSameMonth(DateTime? a, DateTime? b) {
@@ -42,6 +54,10 @@ class FlutterFlowCalendar extends StatefulWidget {
     this.titleStyle,
     this.rowHeight,
     this.locale,
+    this.yearduty,
+    this.monthduty,
+    this.dayduty, 
+    required this.daysOfWeekHeight,
   }) : super(key: key);
 
   final bool weekFormat;
@@ -57,6 +73,10 @@ class FlutterFlowCalendar extends StatefulWidget {
   final TextStyle? titleStyle;
   final double? rowHeight;
   final String? locale;
+  final int? yearduty;
+  final int? monthduty;
+  final int? dayduty;
+  final double daysOfWeekHeight;
 
   @override
   State<StatefulWidget> createState() => _FlutterFlowCalendarState();
@@ -66,18 +86,84 @@ class _FlutterFlowCalendarState extends State<FlutterFlowCalendar> {
   late DateTime focusedDay;
   late DateTime selectedDay;
   late DateTimeRange selectedRange;
+  late int index;
+  var selectedDays;
+  final Set<DateTime> _selectedDays = LinkedHashSet<DateTime>(
+    equals: isSameDay,
+    hashCode: getHashCode,
+  );
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    // print("_onDaySelected $selectedDay $focusedDay");selectedDay
+    setState(() {
+      focusedDay = selectedDay;
+      // Update values in a Set
+      // ทำงานเมื่อค้นหาเจอ
+      // if (_selectedDays.contains(selectedDay)) {
+      // if (widget.yearduty != null &&
+      //     widget.monthduty != null &&
+      //     widget.dayduty != null) {
+      //   if (selectedDay.toString().split(" ")[0] !=
+      //       _selectedDays.first.toString().split(" ")[0]) {
+      //     _selectedDays.remove(selectedDay);
+      //   }
+      // } else {
+      //   _selectedDays.remove(selectedDay);
+      // }
+      // }
+      // ทำงานเมื่อหาไม่เจอ
+      // else {
+      // print("widget.yearduty ${widget.yearduty}");
+      // เมื่อมีเวรของเพื่อน
+      if (widget.yearduty != null &&
+          widget.monthduty != null &&
+          widget.dayduty != null) {
+        // print("มีการเพิ่มเวรเข้ามาอยู่แล้ว");
+        // _selectedDays ห้ามเกิน 2 ถ้าเกินลบสมาชิกล่าสุด แล้วเพิ่มใหม่
+        if (_selectedDays.length == 2) {
+          _selectedDays.remove(_selectedDays.last);
+          _selectedDays.add(selectedDay);
+          setSelectedDay(selectedDay);
+        } else {
+          _selectedDays.add(selectedDay);
+          setSelectedDay(selectedDay);
+        }
+      } else {
+        if (_selectedDays.length == 1) {
+          // print("มีเวร 1 เวร");
+          _selectedDays.remove(_selectedDays.last);
+          _selectedDays.add(selectedDay);
+          setSelectedDay(selectedDay);
+        } else {
+          _selectedDays.add(selectedDay);
+          setSelectedDay(selectedDay);
+        }
+      }
+
+      // _selectedDays.intersection(other)
+      // }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    index = 0;
     focusedDay = widget.initialDate ?? DateTime.now();
     selectedDay = widget.initialDate ?? DateTime.now();
     selectedRange = DateTimeRange(
       start: selectedDay.startOfDay,
       end: selectedDay.endOfDay,
     );
-    SchedulerBinding.instance
-        .addPostFrameCallback((_) => setSelectedDay(selectedRange.start));
+
+    SchedulerBinding.instance.addPostFrameCallback((_) => setSelectedDay(
+          selectedRange.start,
+        ));
+    if (widget.yearduty != null &&
+        widget.monthduty != null &&
+        widget.dayduty != null) {
+      _selectedDays.add(DateTime(
+          widget.yearduty ?? 2000, widget.monthduty ?? 1, widget.dayduty ?? 1));
+    }
   }
 
   CalendarFormat get calendarFormat =>
@@ -113,87 +199,100 @@ class _FlutterFlowCalendarState extends State<FlutterFlowCalendar> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          CalendarHeader(
-            focusedDay: focusedDay,
-            onLeftChevronTap: () => setState(
-              () => focusedDay = widget.weekFormat
-                  ? _previousWeek(focusedDay)
-                  : _previousMonth(focusedDay),
-            ),
-            onRightChevronTap: () => setState(
-              () => focusedDay = widget.weekFormat
-                  ? _nextWeek(focusedDay)
-                  : _nextMonth(focusedDay),
-            ),
-            onTodayButtonTap: () => setState(() => focusedDay = DateTime.now()),
-            titleStyle: widget.titleStyle,
-            iconColor: widget.iconColor,
-            locale: widget.locale,
+  Widget build(BuildContext context) {
+    // print("selectedDay.startOfDay ${selectedDay.startOfDay}");
+    // print("selectedDay.endOfDay ${selectedDay.endOfDay}");
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        CalendarHeader(
+          focusedDay: focusedDay,
+          onLeftChevronTap: () => setState(
+            () => focusedDay = widget.weekFormat
+                ? _previousWeek(focusedDay)
+                : _previousMonth(focusedDay),
           ),
-          TableCalendar(
-            focusedDay: focusedDay,
-            selectedDayPredicate: (date) => isSameDay(selectedDay, date),
-            firstDay: kFirstDay,
-            lastDay: kLastDay,
-            calendarFormat: calendarFormat,
-            headerVisible: false,
-            locale: widget.locale,
-            rowHeight:
-                widget.rowHeight ?? MediaQuery.of(context).size.width / 7,
-            calendarStyle: CalendarStyle(
-              defaultTextStyle:
-                  widget.dateStyle ?? const TextStyle(color: Color(0xFF5A5A5A)),
-              weekendTextStyle: widget.dateStyle ??
-                  const TextStyle(color: const Color(0xFF5A5A5A)),
-              holidayTextStyle: widget.dateStyle ??
-                  const TextStyle(color: const Color(0xFF5C6BC0)),
-              selectedTextStyle:
-                  const TextStyle(color: Color(0xFFFAFAFA), fontSize: 16.0)
-                      .merge(widget.selectedDateStyle),
-              todayTextStyle:
-                  const TextStyle(color: Color(0xFFFAFAFA), fontSize: 16.0)
-                      .merge(widget.selectedDateStyle),
-              outsideTextStyle: const TextStyle(color: Color(0xFF9E9E9E))
-                  .merge(widget.inactiveDateStyle),
-              selectedDecoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
-              todayDecoration: BoxDecoration(
-                color: lighterColor,
-                shape: BoxShape.circle,
-              ),
-              markerDecoration: BoxDecoration(
-                color: lightColor,
-                shape: BoxShape.circle,
-              ),
-              markersMaxCount: 3,
-              canMarkersOverflow: true,
-            ),
-            availableGestures: AvailableGestures.horizontalSwipe,
-            startingDayOfWeek: startingDayOfWeek,
-            daysOfWeekStyle: DaysOfWeekStyle(
-              weekdayStyle: const TextStyle(color: Color(0xFF616161))
-                  .merge(widget.dayOfWeekStyle),
-              weekendStyle: const TextStyle(color: Color(0xFF616161))
-                  .merge(widget.dayOfWeekStyle),
-            ),
-            onDaySelected: (newSelectedDay, _) {
-              if (!isSameDay(selectedDay, newSelectedDay)) {
-                setSelectedDay(newSelectedDay);
-                if (!isSameMonth(focusedDay, newSelectedDay)) {
-                  setState(() => focusedDay = newSelectedDay);
-                }
-              }
-            },
+          onRightChevronTap: () => setState(
+            () => focusedDay = widget.weekFormat
+                ? _nextWeek(focusedDay)
+                : _nextMonth(focusedDay),
           ),
-        ],
-      );
+          onTodayButtonTap: () => setState(() => focusedDay = DateTime.now()),
+          titleStyle: widget.titleStyle,
+          iconColor: widget.iconColor,
+          locale: widget.locale,
+        ),
+        TableCalendar(
+          focusedDay: focusedDay,
+          selectedDayPredicate: (date) {
+            // return isSameDay(selectedDay, date);
+            // print("_selectedDays ${_selectedDays}");
+
+            // print(
+            //     "_selectedDays.contains(date); ${_selectedDays.contains(date)}");
+            if (index == 0 &&
+                widget.yearduty != null &&
+                widget.monthduty != null &&
+                widget.dayduty != null) {
+              index = 1;
+              return _selectedDays.contains(_selectedDays.first);
+            }
+            return _selectedDays.contains(date);
+            // print("data selected $date");
+            // return true;
+          },
+          daysOfWeekHeight: widget.daysOfWeekHeight,
+          firstDay: kFirstDay,
+          lastDay: kLastDay,
+          calendarFormat: calendarFormat,
+          headerVisible: false,
+          locale: widget.locale,
+          rowHeight: widget.rowHeight ?? MediaQuery.of(context).size.width / 7,
+          calendarStyle: CalendarStyle(
+            defaultTextStyle:
+                widget.dateStyle ?? const TextStyle(color: Color(0xFF5A5A5A)),
+            weekendTextStyle: widget.dateStyle ??
+                const TextStyle(color: const Color(0xFF5A5A5A)),
+            holidayTextStyle: widget.dateStyle ??
+                const TextStyle(color: const Color(0xFF5C6BC0)),
+            selectedTextStyle:
+                const TextStyle(color: Color(0xFFFAFAFA), fontSize: 26.0)
+                    .merge(widget.selectedDateStyle),
+            todayTextStyle:
+                const TextStyle(color: Color(0xFFFAFAFA), fontSize: 26.0)
+                    .merge(widget.selectedDateStyle),
+            outsideTextStyle: const TextStyle(color: Color(0xFF9E9E9E))
+                .merge(widget.inactiveDateStyle),
+            selectedDecoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+            todayDecoration: BoxDecoration(
+              color: lighterColor,
+              shape: BoxShape.circle,
+            ),
+            markerDecoration: BoxDecoration(
+              color: lightColor,
+              shape: BoxShape.circle,
+            ),
+            markersMaxCount: 3,
+            canMarkersOverflow: true,
+          ),
+          availableGestures: AvailableGestures.horizontalSwipe,
+          startingDayOfWeek: startingDayOfWeek,
+          daysOfWeekStyle: DaysOfWeekStyle(
+            weekdayStyle: const TextStyle(color: Color(0xFF616161))
+                .merge(widget.dayOfWeekStyle),
+            weekendStyle: const TextStyle(color: Color(0xFF616161))
+                .merge(widget.dayOfWeekStyle),
+          ),
+          onDaySelected: _onDaySelected,
+        ),
+      ],
+    );
+  }
 }
 
 class CalendarHeader extends StatelessWidget {
@@ -230,7 +329,7 @@ class CalendarHeader extends StatelessWidget {
             Expanded(
               child: Text(
                 DateFormat.yMMMM(locale).format(focusedDay),
-                style: const TextStyle(fontSize: 17).merge(titleStyle),
+                style: const TextStyle(fontSize: 27).merge(titleStyle),
               ),
             ),
             CustomIconButton(

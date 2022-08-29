@@ -13,7 +13,8 @@ class PostRegisterCall {
     required String email,
     required String password,
   }) {
-    final body = '''
+    final body =
+        '''
 {
   "frist_name": "${fristName}",
   "last_name": "${lastName}",
@@ -74,6 +75,10 @@ class PostLoginCall {
   static dynamic resToken(dynamic response) => getJsonField(
         response,
         r'''$.token''',
+      );
+  static dynamic resActor(dynamic response) => getJsonField(
+        response,
+        r'''$.user.actor''',
       );
 }
 
@@ -207,7 +212,8 @@ class UpdateProfileCall {
     required String fristName,
     required String lastName,
   }) {
-    final body = '''
+    final body =
+        '''
 {
   "frist_name": "${fristName}",
   "last_name": "${lastName}"
@@ -255,6 +261,11 @@ class UpdateSchedule {
       returnBody: true,
     );
   }
+
+  static dynamic resUpdateSchedule(dynamic response) => getJsonField(
+        response,
+        r'''$''',
+      );
 }
 
 class GetPresentCall {
@@ -467,37 +478,7 @@ class LogoutCall {
   }
 }
 
-class DeleteMemberInGroupCall {
-  static Future<ApiCallResponse> call({
-    required String token,
-    required String groupId,
-    required String userId,
-  }) {
-    final body = '''
-{
-  "groupId": "${groupId}",
-  "userId": "${userId}"
-}''';
-    print("กำลังจะลบสมาชิก");
-    return ApiManager.instance.makeApiCall(
-      callName: 'deletememberingroup',
-      apiUrl: '$url/api/group/removemember',
-      callType: ApiCallType.DELETE,
-      headers: {
-        'content-type': 'application/json',
-        'Access-Control_Allow_Origin': '*',
-        'x-access-token': '$token',
-      },
-      body: body,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-    );
-  }
-  static dynamic getRes(dynamic response) => getJsonField(
-        response,
-        r'''$''',
-      );
-}
+
 
 class GetAllCall {
   static Future<ApiCallResponse> call(
@@ -568,15 +549,17 @@ class AddMemberCall {
     required String email,
     required String nameGroup,
   }) {
-    final body = '''
+    final body =
+        '''
 {
   "email": "${email}",
   "name_group": "${nameGroup}"
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'addMember',
-      apiUrl: '$url/api/group/addmember',
-      callType: ApiCallType.PUT,
+      // apiUrl: '$url/api/group/addmember',
+      apiUrl: "$url/api/invite/invite",
+      callType: ApiCallType.POST,
       headers: {
         'content-type': 'application/json',
         'Access-Control_Allow_Origin': '*',

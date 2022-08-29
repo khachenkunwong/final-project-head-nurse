@@ -30,7 +30,6 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
 
   Future<String> getMeallpubileinClass({required String token}) async {
     setState(() {});
-    print("armss");
     try {
       final res = await http.get(
         Uri.parse("$url/api/group/schedule/me/all/AAA-บ้านม่วง"),
@@ -40,8 +39,15 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
           "x-access-token": "$token"
         },
       );
-      // print("res.body ${res.body}");
+      // print("res type ${res.body.runtimeType}");
       // print("res ${res.body}");
+
+      // เอา string ไปแล้ว decode เป็น json เอาไปเก็บในตัวแปร
+      // final resBody = convert.jsonDecode(res.body);
+
+      // print("res type ${resBody.runtimeType}");
+      // print("resBody ${resBody["_id"]}");
+      print("res.body ${res.body}");
       if (res.statusCode == 200) {
         return res.body;
       } else {
@@ -99,6 +105,7 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
     //   print(" 1 มีของมูลอยู่แล้ว");
     //   // print("data strote ${FFAppState().itemsduty}");
     // }
+    print("FFAppState().itemsduty ${FFAppState().itemsduty}");
   }
 
   @override
@@ -182,28 +189,29 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
                       titleStyle: GoogleFonts.getFont(
                         'Mitr',
                         color: FlutterFlowTheme.of(context).primaryBlack,
-                        fontSize: 18,
+                        fontSize: 28,
                       ),
                       dayOfWeekStyle: GoogleFonts.getFont(
                         'Mitr',
                         color: Color(0xFF050000),
-                        fontSize: 18,
+                        fontSize: 28,
                       ),
                       dateStyle: GoogleFonts.getFont(
                         'Mitr',
                         color: Color(0xFF050000),
-                        fontSize: 18,
+                        fontSize: 28,
                       ),
                       selectedDateStyle: GoogleFonts.getFont(
                         'Mitr',
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 28,
                       ),
                       inactiveDateStyle: GoogleFonts.getFont(
                         'Mitr',
                         color: Color(0xFF8E8E8E),
-                        fontSize: 18,
+                        fontSize: 28,
                       ),
+                      daysOfWeekHeight: 40,
                     ),
                   ),
                   Padding(
@@ -226,6 +234,7 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
                                 builder: (context) => FirstscreenWidget(),
                               ));
                         } else {
+                          setState(() => FFAppState().tokenStore = '');
                           await actions.notifica(
                             context,
                             'ออกจากระบบไม่สำเร็จ',
