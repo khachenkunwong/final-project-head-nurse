@@ -6,14 +6,25 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 import 'package:flutter_toastr/flutter_toastr.dart';
 
-Future notifica(BuildContext context, String message) async {
+Future notifica(BuildContext context, String message, {Color? color}) async {
   // Add your function code here!
-  FlutterToastr.show(message, context,
-      duration: 2,
-      position: FlutterToastr.bottom,
-      backgroundColor: Colors.red,
-      textStyle: TextStyle(
-        color: Colors.white,
-        fontSize: 16.0,
-      ));
+  if (color == null) {
+    FlutterToastr.show(message, context,
+        duration: 2,
+        position: FlutterToastr.bottom,
+        backgroundColor: Colors.red,
+        textStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 16.0,
+        ));
+  }else{
+    FlutterToastr.show(message, context,
+        duration: 2,
+        position: FlutterToastr.bottom,
+        backgroundColor: color,
+        textStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 16.0,
+        ));
+  }
 }

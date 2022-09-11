@@ -1,4 +1,5 @@
 import 'package:easy_debounce/easy_debounce.dart';
+import 'package:hos_windown/group/creategroup_widget.dart';
 
 import '../backend/api_requests/api_calls.dart';
 import '../backend/pubilc_.dart';
@@ -14,6 +15,7 @@ import 'dart:convert' as convert;
 
 import '../model/all_member_without_me.dart';
 import '../model/member_model.dart';
+import 'search_widget.dart';
 
 class GroupWidget extends StatefulWidget {
   const GroupWidget({Key? key}) : super(key: key);
@@ -23,14 +25,17 @@ class GroupWidget extends StatefulWidget {
 }
 
 class _GroupWidgetState extends State<GroupWidget> {
-  ApiCallResponse? createGroupOutput;
+  
   ApiCallResponse? getDeleteMember;
   Completer<ApiCallResponse>? _apiRequestCompleter;
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  late TextEditingController searchEdit;
+
   Future<List<Group>>? futureMember;
   Future<List<Datum>>? futureAllDuty;
-  TextEditingController? textControllernamegroup;
+  List<Datum>? listvievDutySearch;
+  List<Datum>? listSearchEmail;
+
+  Map<String, bool> deleteLord = {};
   bool lord1 = false;
   var refresh;
   Future<List<Group>> getMemberModel({required String token}) async {
@@ -61,6 +66,17 @@ class _GroupWidgetState extends State<GroupWidget> {
         final _futureMember =
             MemberCall.fromJson(bodyMember as Map<String, dynamic>);
         final futureMember = _futureMember.group as List<Group>;
+        for (var indexGroupNumber = 0;
+            indexGroupNumber < futureMember.length;
+            indexGroupNumber++) {
+          for (var indexMemberNumber = 0;
+              indexMemberNumber < futureMember[indexGroupNumber].member!.length;
+              indexMemberNumber++) {
+            deleteLord.addEntries({
+              "refrest ${indexGroupNumber} ${indexMemberNumber}": false
+            }.entries);
+          }
+        }
         return futureMember;
       }
       await actions.notifica(
@@ -107,6 +123,13 @@ class _GroupWidgetState extends State<GroupWidget> {
         final _futureAllDuty =
             AllMemberwithout.fromJson(bodyAllDuty as Map<String, dynamic>);
         final futureAllDuty = _futureAllDuty.data as List<Datum>;
+        if (listvievDutySearch?.length == 0 || listvievDutySearch == null) {
+          setState(() {
+            listvievDutySearch = futureAllDuty;
+            listSearchEmail = listvievDutySearch;
+          });
+        }
+
         return futureAllDuty;
       }
       await actions.notifica(
@@ -149,12 +172,10 @@ class _GroupWidgetState extends State<GroupWidget> {
       // }
 
       if (res.statusCode == 200) {
-        print(
-            "yyyyy ${res.body}}");
+        print("yyyyy ${res.body}}");
         await actions.notifica(context, "ลบสมาชิกสำเร็จ");
       } else {
-        print(
-            "yyyyy ${res.body}}");
+        print("yyyyy ${res.body}}");
         await actions.notifica(context, "ลบสมาชิกไม่สำเร็จ");
       }
 
@@ -174,9 +195,6 @@ class _GroupWidgetState extends State<GroupWidget> {
     // FFAppState().tokenStore =
     //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjp7InN1YiI6IjYyY2JjNGU1NDIwYzllMWFmZjJkN2I4MCIsInYiOjF9LCJpYXQiOjE2NTkxNjQwNDEsImV4cCI6MTY1OTc2ODg0MX0.nCsqVj5aA5znhFnguY89aTF2oZzaya-t4miI4waLeu8";
     // //
-
-    textControllernamegroup = TextEditingController(text: '');
-    searchEdit = TextEditingController(text: "");
   }
 
   @override
@@ -184,6 +202,12 @@ class _GroupWidgetState extends State<GroupWidget> {
     futureMember = getMemberModel(token: FFAppState().tokenStore);
     futureAllDuty = getAllMemberWhithOut(token: FFAppState().tokenStore);
     print("scaffold");
+    print("${listvievDutySearch}");
+    if (listvievDutySearch?.length == 0 || listvievDutySearch == null) {
+      setState(() {
+        listSearchEmail = listvievDutySearch;
+      });
+    }
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -337,234 +361,19 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                       ),
                                                       onPressed: () async {
                                                         await showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (alertDialogContext) {
-                                                              return AlertDialog(
-                                                                title: Expanded(
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            10,
-                                                                            0,
-                                                                            0,
-                                                                            0),
-                                                                    child:
-                                                                        TextFormField(
-                                                                      controller:
-                                                                          searchEdit,
-                                                                      onChanged:
-                                                                          (_) =>
-                                                                              EasyDebounce.debounce(
-                                                                        'textController',
-                                                                        Duration(
-                                                                            milliseconds:
-                                                                                2000),
-                                                                        () => setState(
-                                                                            () {}),
-                                                                      ),
-                                                                      obscureText:
-                                                                          false,
-                                                                      decoration:
-                                                                          InputDecoration(
-                                                                        isDense:
-                                                                            true,
-                                                                        hintText:
-                                                                            'ค้นหา',
-                                                                        enabledBorder:
-                                                                            OutlineInputBorder(
-                                                                          borderSide:
-                                                                              BorderSide(
-                                                                            color:
-                                                                                FlutterFlowTheme.of(context).secondaryText,
-                                                                            width:
-                                                                                1,
-                                                                          ),
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(5),
-                                                                        ),
-                                                                        focusedBorder:
-                                                                            OutlineInputBorder(
-                                                                          borderSide:
-                                                                              BorderSide(
-                                                                            color:
-                                                                                FlutterFlowTheme.of(context).secondaryText,
-                                                                            width:
-                                                                                1,
-                                                                          ),
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(5),
-                                                                        ),
-                                                                        filled:
-                                                                            true,
-                                                                        fillColor:
-                                                                            Colors.white,
-                                                                        prefixIcon:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .search,
-                                                                          size:
-                                                                              16,
-                                                                        ),
-                                                                      ),
-                                                                      style: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .title3,
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .center,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                content:
-                                                                    Container(
-                                                                  height: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .height *
-                                                                      0.5,
-                                                                  width: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width *
-                                                                      0.4,
-                                                                  child: FutureBuilder<
-                                                                      List<
-                                                                          Datum>>(
-                                                                    future:
-                                                                        futureAllDuty,
-                                                                    builder:
-                                                                        ((context,
-                                                                            snapshotAllDuty) {
-                                                                      if (!snapshotAllDuty
-                                                                          .hasData) {
-                                                                        return Center(
-                                                                          child:
-                                                                              SizedBox(
-                                                                            width:
-                                                                                50,
-                                                                            height:
-                                                                                50,
-                                                                            child:
-                                                                                CircularProgressIndicator(
-                                                                              color: FlutterFlowTheme.of(context).primaryColor,
-                                                                            ),
-                                                                          ),
-                                                                        );
-                                                                      }
-                                                                      final listViewAllDuty =
-                                                                          snapshotAllDuty
-                                                                              .data!;
-                                                                      return Builder(
-                                                                          builder:
-                                                                              (context) {
-                                                                        print(listViewAllDuty
-                                                                            .length);
-                                                                        return ListView
-                                                                            .builder(
-                                                                          itemCount:
-                                                                              listViewAllDuty.length,
-                                                                          itemBuilder:
-                                                                              (BuildContext context, int indexAllDuty) {
-                                                                            final itemAllDuty =
-                                                                                listViewAllDuty[indexAllDuty];
-                                                                            return Padding(
-                                                                              padding: EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
-                                                                              child: Row(
-                                                                                mainAxisSize: MainAxisSize.max,
-                                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                                children: [
-                                                                                  Row(
-                                                                                    mainAxisSize: MainAxisSize.max,
-                                                                                    children: [
-                                                                                      Container(
-                                                                                        width: 45,
-                                                                                        height: 45,
-                                                                                        clipBehavior: Clip.antiAlias,
-                                                                                        decoration: BoxDecoration(
-                                                                                          shape: BoxShape.circle,
-                                                                                        ),
-                                                                                        child: Image.network(
-                                                                                          'https://picsum.photos/seed/180/600',
-                                                                                        ),
-                                                                                      ),
-                                                                                      Padding(
-                                                                                        padding: EdgeInsetsDirectional.fromSTEB(20, 0, 0, 0),
-                                                                                        child: Column(
-                                                                                          mainAxisSize: MainAxisSize.max,
-                                                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                          children: [
-                                                                                            Text(
-                                                                                              "${itemAllDuty.fristName} ${itemAllDuty.lastName}",
-                                                                                              style: FlutterFlowTheme.of(context).title2,
-                                                                                            ),
-                                                                                            Text(
-                                                                                              '${itemAllDuty.email}',
-                                                                                              style: FlutterFlowTheme.of(context).title3,
-                                                                                            ),
-                                                                                          ],
-                                                                                        ),
-                                                                                      ),
-                                                                                    ],
-                                                                                  ),
-                                                                                  Padding(
-                                                                                    padding: EdgeInsetsDirectional.fromSTEB(0, 0, 20, 0),
-                                                                                    child: InkWell(
-                                                                                      onTap: () async {
-                                                                                        final addMemberOutPut = await AddMemberCall.call(
-                                                                                          token: FFAppState().tokenStore,
-                                                                                          email: '${itemAllDuty.email}',
-                                                                                          nameGroup: '${ItemGroup.nameGroup}',
-                                                                                        );
-                                                                                        if (addMemberOutPut.statusCode == 200) {
-                                                                                          Navigator.pop(context);
-                                                                                          await actions.notifica(
-                                                                                            context,
-                                                                                            'เพิ่มสมาชิกสำเร็จ',
-                                                                                          );
-
-                                                                                          setState(() {});
-                                                                                        } else {
-                                                                                          await actions.notifica(
-                                                                                            context,
-                                                                                            'เพิ่มสมาชิกไม่เสำเร็จ',
-                                                                                          );
-                                                                                        }
-
-                                                                                        setState(() {
-                                                                                          refresh = !refresh;
-                                                                                        });
-                                                                                      },
-                                                                                      child: Text(
-                                                                                        'เพิ่ม',
-                                                                                        style: FlutterFlowTheme.of(context).bodyText1.override(
-                                                                                              fontFamily: 'Mitr',
-                                                                                              color: FlutterFlowTheme.of(context).primaryBlue,
-                                                                                            ),
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            );
-                                                                          },
-                                                                        );
-                                                                      });
-                                                                    }),
-                                                                  ),
-                                                                ),
-                                                                actions: [
-                                                                  TextButton(
-                                                                    onPressed: () =>
-                                                                        Navigator.pop(
-                                                                            alertDialogContext),
-                                                                    child: Text(
-                                                                        'Ok'),
-                                                                  ),
-                                                                ],
-                                                              );
-                                                            });
+                                                          context: context,
+                                                          builder:
+                                                              (alertDialogContext) {
+                                                            return SearchWidget(
+                                                                listvievDutySearch:
+                                                                    listvievDutySearch
+                                                                        as List<
+                                                                            Datum>,
+                                                                nameGroup: ItemGroup
+                                                                    .nameGroup
+                                                                    .toString());
+                                                          },
+                                                        );
                                                       },
                                                     ),
                                                   ],
@@ -784,26 +593,35 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                                 0,
                                                                                 20,
                                                                                 0),
-                                                                            child:
-                                                                                InkWell(
-                                                                              onTap: () async {
-                                                                                // print("yyyy ${ItemGroup.id} - ${itemMember.email}");
-                                                                                // getDeleteMember = await DeleteMemberInGroupCall.call(groupId: "${ItemGroup.id}", email: "${itemMember.email}", token: FFAppState().tokenStore);
-                                                                                // print("id group ${ItemGroup.id} id member ${itemMember.email} fristName ${itemMember.fristName} lastName ${itemMember.lastName}");
-                                                                                // print("ลบสมาชิก");
-                                                                                await deleteMember(email: "${itemMember.email}", groupId: "${ItemGroup.id}");
-                                                                                print("ทำงานเสร็จแล้ว");
-
-                                                                                setState(() {});
-                                                                              },
-                                                                              child: Text(
-                                                                                'ลบ',
-                                                                                style: FlutterFlowTheme.of(context).bodyText1.override(
-                                                                                      fontFamily: 'Mitr',
-                                                                                      color: FlutterFlowTheme.of(context).primaryRed,
+                                                                            child: deleteLord["refrest ${indexGroup} ${indexMember}"] == false
+                                                                                ? InkWell(
+                                                                                    onTap: () async {
+                                                                                      setState(() {
+                                                                                        deleteLord["refrest ${indexGroup} ${indexMember}"] = true;
+                                                                                      });
+                                                                                      // print("yyyy ${ItemGroup.id} - ${itemMember.email}");
+                                                                                      // getDeleteMember = await DeleteMemberInGroupCall.call(groupId: "${ItemGroup.id}", email: "${itemMember.email}", token: FFAppState().tokenStore);
+                                                                                      // print("id group ${ItemGroup.id} id member ${itemMember.email} fristName ${itemMember.fristName} lastName ${itemMember.lastName}");
+                                                                                      // print("ลบสมาชิก");
+                                                                                      await deleteMember(email: "${itemMember.email}", groupId: "${ItemGroup.id}");
+                                                                                      print("ทำงานเสร็จแล้ว");
+                                                                                      if (mounted) {
+                                                                                        setState(() {
+                                                                                          deleteLord["refrest ${indexGroup} ${indexMember}"] = false;
+                                                                                        });
+                                                                                      }
+                                                                                    },
+                                                                                    child: Text(
+                                                                                      'ลบ',
+                                                                                      style: FlutterFlowTheme.of(context).bodyText1.override(
+                                                                                            fontFamily: 'Mitr',
+                                                                                            color: FlutterFlowTheme.of(context).primaryRed,
+                                                                                          ),
                                                                                     ),
-                                                                              ),
-                                                                            ),
+                                                                                  )
+                                                                                : CircularProgressIndicator(
+                                                                                    color: Colors.red,
+                                                                                  ),
                                                                           ),
                                                                         ],
                                                                       ),
@@ -843,96 +661,8 @@ class _GroupWidgetState extends State<GroupWidget> {
                       await showDialog(
                           context: context,
                           builder: (alertDialogContext) {
-                            return AlertDialog(
-                              title: SizedBox(
-                                height: 100.0,
-                                width: 500.0,
-                                child: Center(
-                                  child: TextFormField(
-                                    controller: textControllernamegroup,
-                                    obscureText: false,
-                                    decoration: InputDecoration(
-                                      hintText: 'กรุณาใส่ชื่อกลุ่ม',
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(50),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(50),
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                    ),
-                                    style: FlutterFlowTheme.of(context).title3,
-                                  ),
-                                ),
-                              ),
-                              actions: [
-                                lord1
-                                    ? CircularProgressIndicator(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryColor,
-                                      )
-                                    : TextButton(
-                                        onPressed: () async {
-                                          if (textControllernamegroup!
-                                                      .text.length !=
-                                                  0 &&
-                                              textControllernamegroup!.text !=
-                                                  null) {
-                                            setState(() {
-                                              lord1 = true;
-                                            });
-
-                                            createGroupOutput =
-                                                await CreateGroupCall.call(
-                                              token: FFAppState().tokenStore,
-                                              nameGroup:
-                                                  '${textControllernamegroup?.text}',
-                                            );
-                                            if ((createGroupOutput
-                                                        ?.statusCode ??
-                                                    200) ==
-                                                200) {
-                                              await actions.notifica(
-                                                context,
-                                                'สร้างกลุ่มเสร็จสิ้น',
-                                              );
-                                            } else {
-                                              await actions.notifica(
-                                                context,
-                                                'สร้างกลุ่มไม่เสำเร็จ',
-                                              );
-                                            }
-
-                                            if (mounted) {
-                                              setState(() => lord1 = false);
-                                            }
-                                            Navigator.pop(alertDialogContext);
-                                          } else {
-                                            await actions.notifica(
-                                              context,
-                                              'กรุณากรอกชื่อกลุ่ม',
-                                            );
-                                          }
-                                        },
-                                        child: Text(
-                                          'สร้างกลุ่ม',
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyText2,
-                                        ),
-                                      ),
-                              ],
-                            );
+                            
+                            return CreateGroupWidget();
                           });
                     },
                     child: Container(

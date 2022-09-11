@@ -56,7 +56,11 @@ class FlutterFlowCalendar extends StatefulWidget {
     this.locale,
     this.yearduty,
     this.monthduty,
-    this.dayduty, 
+    this.dayduty,
+    this.yearduty2,
+    this.monthduty2,
+    this.dayduty2,
+    this.changTwoDuty = false,
     required this.daysOfWeekHeight,
   }) : super(key: key);
 
@@ -76,6 +80,10 @@ class FlutterFlowCalendar extends StatefulWidget {
   final int? yearduty;
   final int? monthduty;
   final int? dayduty;
+  final int? yearduty2;
+  final int? monthduty2;
+  final int? dayduty2;
+  final bool? changTwoDuty;
   final double daysOfWeekHeight;
 
   @override
@@ -114,28 +122,56 @@ class _FlutterFlowCalendarState extends State<FlutterFlowCalendar> {
       // else {
       // print("widget.yearduty ${widget.yearduty}");
       // เมื่อมีเวรของเพื่อน
-      if (widget.yearduty != null &&
-          widget.monthduty != null &&
-          widget.dayduty != null) {
-        // print("มีการเพิ่มเวรเข้ามาอยู่แล้ว");
-        // _selectedDays ห้ามเกิน 2 ถ้าเกินลบสมาชิกล่าสุด แล้วเพิ่มใหม่
-        if (_selectedDays.length == 2) {
-          _selectedDays.remove(_selectedDays.last);
-          _selectedDays.add(selectedDay);
-          setSelectedDay(selectedDay);
+      // เพิ่มจำนวนการ marker
+      if (widget.changTwoDuty == false) {
+        if (widget.yearduty != null &&
+            widget.monthduty != null &&
+            widget.dayduty != null) {
+          // print("มีการเพิ่มเวรเข้ามาอยู่แล้ว");
+          // _selectedDays ห้ามเกิน 2 ถ้าเกินลบสมาชิกล่าสุด แล้วเพิ่มใหม่
+          if (_selectedDays.length == 2) {
+            _selectedDays.remove(_selectedDays.last);
+            _selectedDays.add(selectedDay);
+            setSelectedDay(selectedDay);
+          } else {
+            _selectedDays.add(selectedDay);
+            setSelectedDay(selectedDay);
+          }
         } else {
-          _selectedDays.add(selectedDay);
-          setSelectedDay(selectedDay);
+          if (_selectedDays.length == 1) {
+            // print("มีเวร 1 เวร");
+            _selectedDays.remove(_selectedDays.last);
+            _selectedDays.add(selectedDay);
+            setSelectedDay(selectedDay);
+          } else {
+            _selectedDays.add(selectedDay);
+            setSelectedDay(selectedDay);
+          }
         }
       } else {
-        if (_selectedDays.length == 1) {
-          // print("มีเวร 1 เวร");
-          _selectedDays.remove(_selectedDays.last);
-          _selectedDays.add(selectedDay);
-          setSelectedDay(selectedDay);
+        if (widget.yearduty != null &&
+            widget.monthduty != null &&
+            widget.dayduty != null) {
+          // print("มีการเพิ่มเวรเข้ามาอยู่แล้ว");
+          // _selectedDays ห้ามเกิน 2 ถ้าเกินลบสมาชิกล่าสุด แล้วเพิ่มใหม่
+          if (_selectedDays.length == 3) {
+            _selectedDays.remove(_selectedDays.last);
+            _selectedDays.add(selectedDay);
+            setSelectedDay(selectedDay);
+          } else {
+            _selectedDays.add(selectedDay);
+            setSelectedDay(selectedDay);
+          }
         } else {
-          _selectedDays.add(selectedDay);
-          setSelectedDay(selectedDay);
+          if (_selectedDays.length == 1) {
+            // print("มีเวร 1 เวร");
+            _selectedDays.remove(_selectedDays.last);
+            _selectedDays.add(selectedDay);
+            setSelectedDay(selectedDay);
+          } else {
+            _selectedDays.add(selectedDay);
+            setSelectedDay(selectedDay);
+          }
         }
       }
 
@@ -158,11 +194,16 @@ class _FlutterFlowCalendarState extends State<FlutterFlowCalendar> {
     SchedulerBinding.instance.addPostFrameCallback((_) => setSelectedDay(
           selectedRange.start,
         ));
+    // เพิ่ม จุด mark วัน
     if (widget.yearduty != null &&
         widget.monthduty != null &&
         widget.dayduty != null) {
       _selectedDays.add(DateTime(
           widget.yearduty ?? 2000, widget.monthduty ?? 1, widget.dayduty ?? 1));
+      if (widget.changTwoDuty == true) {
+        _selectedDays.add(DateTime(widget.yearduty2 ?? 2000,
+            widget.monthduty2 ?? 1, widget.dayduty2 ?? 1));
+      }
     }
   }
 
@@ -205,7 +246,7 @@ class _FlutterFlowCalendarState extends State<FlutterFlowCalendar> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         CalendarHeader(
           focusedDay: focusedDay,
@@ -258,10 +299,10 @@ class _FlutterFlowCalendarState extends State<FlutterFlowCalendar> {
             holidayTextStyle: widget.dateStyle ??
                 const TextStyle(color: const Color(0xFF5C6BC0)),
             selectedTextStyle:
-                const TextStyle(color: Color(0xFFFAFAFA), fontSize: 26.0)
+                const TextStyle(color: Color(0xFFFAFAFA), fontSize: 16.0)
                     .merge(widget.selectedDateStyle),
             todayTextStyle:
-                const TextStyle(color: Color(0xFFFAFAFA), fontSize: 26.0)
+                const TextStyle(color: Color(0xFFFAFAFA), fontSize: 16.0)
                     .merge(widget.selectedDateStyle),
             outsideTextStyle: const TextStyle(color: Color(0xFF9E9E9E))
                 .merge(widget.inactiveDateStyle),
@@ -329,7 +370,7 @@ class CalendarHeader extends StatelessWidget {
             Expanded(
               child: Text(
                 DateFormat.yMMMM(locale).format(focusedDay),
-                style: const TextStyle(fontSize: 27).merge(titleStyle),
+                style: const TextStyle(fontSize: 17).merge(titleStyle),
               ),
             ),
             CustomIconButton(

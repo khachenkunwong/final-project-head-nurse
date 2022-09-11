@@ -237,6 +237,37 @@ class UpdateProfileCall {
     );
   }
 }
+class UpdateApproveCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required bool approve,
+    required String changId,
+  }) {
+    final body =
+        '''
+{
+  "approve": "${approve}",
+  "changId": "${changId}"
+}''';
+    return ApiManager.instance.makeApiCall(
+      callName: 'updateApprove',
+      apiUrl: '$url/api/changduty/leader/inprove',
+      callType: ApiCallType.PATCH,
+      headers: {
+        'content-type': 'application/json',
+        'Access-Control_Allow_Origin': '*',
+        'x-access-token': '$token',
+      },
+      params: {
+        'approve': approve,
+        'changId': changId,
+      },
+      body: body,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+    );
+  }
+}
 
 class UpdateSchedule {
   static Future<ApiCallResponse> call() {
@@ -513,6 +544,10 @@ class AutoDutyCall {
       returnBody: true,
     );
   }
+  static dynamic getState(dynamic response) => getJsonField(
+        response,
+        r'''$''',
+      );
 }
 
 class CreateGroupCall {
