@@ -26,39 +26,39 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   ApiCallResponse? logoutCallOutput;
   DateTimeRange? calendarSelectedDay;
-  late Future<String> getMall;
+  // late Future<String> getMall;
 
-  Future<String> getMeallpubileinClass({required String token}) async {
-    setState(() {});
-    try {
-      final res = await http.get(
-        Uri.parse("$url/api/group/schedule/me/all/AAA-บ้านม่วง"),
-        headers: {
-          "Accept": "application/json",
-          "Access-Control_Allow_Origin": "*",
-          "x-access-token": "$token"
-        },
-      );
-      // print("res type ${res.body.runtimeType}");
-      // print("res ${res.body}");
+  // Future<String> getMeallpubileinClass({required String token}) async {
+  //   setState(() {});
+  //   try {
+  //     final res = await http.get(
+  //       Uri.parse("$url/api/group/schedule/me/all/AAA"),
+  //       headers: {
+  //         "Accept": "application/json",
+  //         "Access-Control_Allow_Origin": "*",
+  //         "x-access-token": "$token"
+  //       },
+  //     );
+  //     // print("res type ${res.body.runtimeType}");
+  //     // print("res ${res.body}");
 
-      // เอา string ไปแล้ว decode เป็น json เอาไปเก็บในตัวแปร
-      // final resBody = convert.jsonDecode(res.body);
+  //     // เอา string ไปแล้ว decode เป็น json เอาไปเก็บในตัวแปร
+  //     // final resBody = convert.jsonDecode(res.body);
 
-      // print("res type ${resBody.runtimeType}");
-      // print("resBody ${resBody["_id"]}");
-      print("res.body ${res.body}");
-      if (res.statusCode == 200) {
-        return res.body;
-      } else {
-        setState(() {});
-      }
-    } catch (e) {
-      print("error $e");
-      getMeallpubileinClass(token: FFAppState().tokenStore);
-    }
-    return "";
-  }
+  //     // print("res type ${resBody.runtimeType}");
+  //     // print("resBody ${resBody["_id"]}");
+  //     print("res.body ${res.body}");
+  //     if (res.statusCode == 200) {
+  //       return res.body;
+  //     } else {
+  //       setState(() {});
+  //     }
+  //   } catch (e) {
+  //     print("error $e");
+  //     getMeallpubileinClass(token: FFAppState().tokenStore);
+  //   }
+  //   return "";
+  // }
 
   @override
   void initState() {
@@ -85,13 +85,13 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
     );
     // final getMeAllThen = getMeallpubileinClass(token: FFAppState().tokenStore);
     // FFAppState().itemsduty = getMeAllThen;
-    getMall = getMeallpubileinClass(token: FFAppState().tokenStore);
-    getMall.then((getMeAllThen) {
-      print("ค่าวางไหม ${getMeAllThen.isEmpty}");
+    // getMall = getMeallpubileinClass(token: FFAppState().tokenStore);
+    // getMall.then((getMeAllThen) {
+    //   print("ค่าวางไหม ${getMeAllThen.isEmpty}");
 
-      print("บันทึกข้อมูล");
-      FFAppState().itemsduty = getMeAllThen;
-    });
+    //   print("บันทึกข้อมูล");
+    //   FFAppState().itemsduty = getMeAllThen;
+    // });
     // if (FFAppState().itemsduty.length <= 2 && FFAppState().itemsduty.isEmpty) {
     //   getMall = getMeallpubileinClass(token: FFAppState().tokenStore);
     //   getMall.then((getMeAllThen) {
@@ -105,7 +105,7 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
     //   print(" 1 มีของมูลอยู่แล้ว");
     //   // print("data strote ${FFAppState().itemsduty}");
     // }
-    print("FFAppState().itemsduty ${FFAppState().itemsduty}");
+    // print("FFAppState().itemsduty ${FFAppState().itemsduty}");
   }
 
   @override

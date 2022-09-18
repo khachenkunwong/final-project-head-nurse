@@ -107,8 +107,8 @@ class _GroupWidgetState extends State<GroupWidget> {
           "x-access-token": "$token"
         },
       );
-      // print("res.body2 ${res.statusCode}");
-      // print("res.body2 ${res.body}");
+      print("res.body3 ${res.statusCode}");
+      print("res.body3 ${res.body}");
 
       // if (checkUnauthorized) {
       //   await actions.notifica(

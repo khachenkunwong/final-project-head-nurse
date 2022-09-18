@@ -26,8 +26,8 @@ class _ConnextEmailYesNoWidgetState extends State<ConnextEmailYesNoWidget> {
                 color: FlutterFlowTheme.of(context).primaryBlack,
               ),
         ),
-        SvgPicture.asset(
-          'assets/images/email.svg',
+        Image.asset(
+          'assets/images/email.png',
           width: 24,
           height: 19,
           fit: BoxFit.cover,

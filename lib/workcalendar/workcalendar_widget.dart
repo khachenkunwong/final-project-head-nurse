@@ -47,6 +47,19 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
     "median": double.nan,
     "popular_base": double.nan
   };
+  late Future<String> getMall;
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _employees.clear();
+    day.clear();
+    getMeAll.clear();
+    items.clear();
+    tar1.clear();
+    columnWidths.clear();
+    super.dispose();
+  }
+
   Future<String> resetduty() async {
     setState(() {});
     try {
@@ -175,9 +188,13 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
       // Employee1("khachen kunwong", "ช", "ว่าง", "ว่าง");
 
     }
+    // await notifica(context, "โหลดตารางแล้ว", color: Colors.green);
+    // if (mounted) {
     setState(() {
       items = tar1;
     });
+    // }
+
     // print("itemss ${items.length}");
     // var tar2 = tar1.toString();
     // print("print ${tar2}");
@@ -338,9 +355,50 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
     });
   }
 
+  Future<String> getMeallpubileinClass2({required String token}) async {
+    setState(() {});
+    try {
+      final res = await http.get(
+        Uri.parse("$url/api/group/schedule/me/all/AAA"),
+        headers: {
+          "Accept": "application/json",
+          "Access-Control_Allow_Origin": "*",
+          "x-access-token": "$token"
+        },
+      );
+      // print("res type ${res.body.runtimeType}");
+      // print("res ${res.body}");
+
+      // เอา string ไปแล้ว decode เป็น json เอาไปเก็บในตัวแปร
+      // final resBody = convert.jsonDecode(res.body);
+
+      // print("res type ${resBody.runtimeType}");
+      // print("resBody ${resBody["_id"]}");
+      print("res.body ${res.body}");
+      if (res.statusCode == 200) {
+        await notifica(context, "โหลดตารางสำเร็จ", color: Colors.green);
+        return res.body;
+      } else {
+        await notifica(context, "โหลดตารางไม่สำเร็จ");
+        // setState(() {});
+      }
+    } catch (e) {
+      print("error $e");
+      getMeallpubileinClass(token: FFAppState().tokenStore);
+    }
+    return "";
+  }
+
   @override
   void initState() {
     super.initState();
+    getMall = getMeallpubileinClass2(token: FFAppState().tokenStore);
+    getMall.then((getMeAllThen) {
+      print("ค่าวางไหม ${getMeAllThen.isEmpty}");
+
+      print("บันทึกข้อมูล");
+      FFAppState().itemsduty = getMeAllThen;
+    });
 
     getMeallpubileinClass(token: FFAppState().tokenStore);
   }
@@ -384,25 +442,173 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
   //     Employee1(10010, 'Grimes',"nigth", 15000, 'Developer')
   //   ];
   // }
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     //  print('รี หน้าใหม่');
     // items = getEmployeeData();
-    if (items.isNotEmpty || items.length > 0) {
-      // print("tar1$tar1");
-      // print("item len ${items.first.length}");
+    try {
+      if (items.isNotEmpty || items.length > 0) {
+        // print("tar1$tar1");
+        // print("item len ${items.first.length}");
 
-      _employeeDataSource = EmployeeDataSource1(items, items.first.length - 1);
-      currentPage = _employeeDataSource;
-    } else {
-      _employeeDataSource = EmployeeDataSource1(items, items.first.length - 1);
-      return Center(child: CircularProgressIndicator());
+        _employeeDataSource =
+            EmployeeDataSource1(items, items.first.length - 1);
+        currentPage = _employeeDataSource;
+      } else {
+        _employeeDataSource =
+            EmployeeDataSource1(items, items.first.length - 1);
+        return Center(child: CircularProgressIndicator());
+      }
+    } catch (error) {
+      print("error");
+      return Scaffold(
+          floatingActionButton: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FloatingActionButton.extended(
+                    onPressed: () async {
+                      // ยังกดไม่ได้จนกว่าจะแก้เอาเวรว่างออก
+                      setState(() {
+                        loadSave = true;
+                      });
+                      updataschedule = await UpdateSchedule.call();
+                      final gg = UpdateSchedule.resUpdateSchedule(
+                          updataschedule.jsonBody);
+                      print("ooo" + gg.toString());
+                      if (updataschedule.statusCode == 200) {
+                        if (mounted) {
+                          setState(() {
+                            getMeallpubileinClass2(
+                                token: FFAppState().tokenStore);
+                            getMeallpubileinClass(
+                                token: FFAppState().tokenStore);
+                            loadSave = false;
+                          });
+                        }
+                        await actions.notifica(
+                          context,
+                          'บันทึกแล้ว',
+                        );
+                      } else {
+                        if (mounted) {
+                          setState(() {
+                            loadSave = false;
+                          });
+                        }
+                        await actions.notifica(
+                          context,
+                          'บันทึกไม่สำเร็จ',
+                        );
+                      }
+                    },
+                    backgroundColor: FlutterFlowTheme.of(context).primaryColor,
+                    elevation: 10,
+                    label: loadSave == true
+                        ? SizedBox(
+                            width: 20.0,
+                            height: 20.0,
+                            child: CircularProgressIndicator(
+                                backgroundColor: Colors.white))
+                        : Text("บันทึก"),
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  FloatingActionButton.extended(
+                    onPressed: () {
+                      //  print('FloatingActionButton pressed ...');
+                      setState(() {
+                        loadclear = true;
+                      });
+                      resetduty();
+                      setState(() {
+                        loadclear = false;
+                      });
+
+                      print("ล้างแล้ว");
+                    },
+                    backgroundColor: FlutterFlowTheme.of(context).primaryRed,
+                    elevation: 10,
+                    label: loadclear == false
+                        ? Text("ล้าง")
+                        : CircularProgressIndicator(
+                            backgroundColor: Colors.white),
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  FloatingActionButton.extended(
+                    onPressed: () async {
+                      //  print('FloatingActionButton pressed ...');
+                      setState(() {
+                        loadgroupmange = true;
+                      });
+                      final getStoteData =
+                          allMeModelFromJson(FFAppState().itemsduty);
+
+                      await AutoDutyCall.call(
+                          groupID: "${getStoteData.first.group}");
+
+                      print("จัดกลุ่มแล้ว");
+                      if (mounted) {
+                        setState(() {
+                          loadgroupmange = false;
+                        });
+                      }
+                      await notifica(context, "จัดกลุ่มแล้ว",
+                          color: Colors.green);
+                    },
+                    backgroundColor: FlutterFlowTheme.of(context).primaryGreen,
+                    elevation: 10,
+                    label: loadgroupmange == false
+                        ? Text("จัดเวรของกลุ่มนี้")
+                        : CircularProgressIndicator(),
+                  ),
+                  FloatingActionButton.extended(
+                    onPressed: () async {
+                      //  print('FloatingActionButton pressed ...');
+                      // setState(() {
+                      //   loadclear = true;
+                      // });
+                      // resetduty();
+                      // setState(() {
+                      //   loadclear = false;
+                      // });
+                      // getMall = getMeallpubileinClass2(
+                      //     token: FFAppState().tokenStore);
+                      // await getMall.then((getMeAllThen) {
+                      //   print("ค่าวางไหม ${getMeAllThen.isEmpty}");
+
+                      //   print("บันทึกข้อมูล");
+                      //   FFAppState().itemsduty = getMeAllThen;
+                      // });
+
+                      // await getMeallpubileinClass(
+                      //     token: FFAppState().tokenStore);
+                      setState(() {});
+
+                      print("โหลดหน้าใหม่");
+                    },
+                    backgroundColor: FlutterFlowTheme.of(context).primaryRed,
+                    elevation: 10,
+                    label: loadclear == false
+                        ? Text("รีโหลดหน้า")
+                        : CircularProgressIndicator(
+                            backgroundColor: Colors.white),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 75.0,
+                width: 75.0,
+              ),
+            ],
+          ),
+          body: Center(child: Text("เกิดข้อผิดพลาด")));
     }
 
     return Scaffold(
@@ -415,34 +621,40 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
               FloatingActionButton.extended(
                 onPressed: () async {
                   // ยังกดไม่ได้จนกว่าจะแก้เอาเวรว่างออก
-                  // setState(() {
-                  //   loadSave = true;
-                  // });
-                  // updataschedule = await UpdateSchedule.call();
-                  // final gg =
-                  //     UpdateSchedule.resUpdateSchedule(updataschedule.jsonBody);
-                  // print("ooo" + gg.toString());
-                  // if (updataschedule.statusCode == 200) {
-                  //   if (mounted) {
-                  //     setState(() {
-                  //       loadSave = false;
-                  //     });
-                  //   }
-                  //   await actions.notifica(
-                  //     context,
-                  //     'บันทึกแล้ว',
-                  //   );
-                  // } else {
-                  //   if (mounted) {
-                  //     setState(() {
-                  //       loadSave = false;
-                  //     });
-                  //   }
-                  //   await actions.notifica(
-                  //     context,
-                  //     'บันทึกไม่สำเร็จ',
-                  //   );
-                  // }
+                  setState(() {
+                    loadSave = true;
+                  });
+                  updataschedule = await UpdateSchedule.call();
+                  final gg =
+                      UpdateSchedule.resUpdateSchedule(updataschedule.jsonBody);
+                  print("ooo" + gg.toString());
+                  if (updataschedule.statusCode == 200) {
+                    // final getmeall =
+                    //     getMeallpubileinClass2(token: FFAppState().tokenStore);
+                    //   getmeall.then((getMeAllThen2) {
+                    //   FFAppState().itemsduty = getMeAllThen2;
+                    // });
+                    if (mounted) {
+                      setState(() {
+                        // getMeallpubileinClass(token: FFAppState().tokenStore);
+                        loadSave = false;
+                      });
+                    }
+                    await actions.notifica(
+                      context,
+                      'บันทึกแล้ว',
+                    );
+                  } else {
+                    if (mounted) {
+                      setState(() {
+                        loadSave = false;
+                      });
+                    }
+                    await actions.notifica(
+                      context,
+                      'บันทึกไม่สำเร็จ',
+                    );
+                  }
                 },
                 backgroundColor: FlutterFlowTheme.of(context).primaryColor,
                 elevation: 10,
@@ -504,7 +716,40 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                 label: loadgroupmange == false
                     ? Text("จัดเวรของกลุ่มนี้")
                     : CircularProgressIndicator(),
-              )
+              ),
+              SizedBox(
+                width: 10.0,
+              ),
+              FloatingActionButton.extended(
+                onPressed: () async {
+                  //  print('FloatingActionButton pressed ...');
+                  // setState(() {
+                  //   loadclear = true;
+                  // });
+                  // resetduty();
+                  // setState(() {
+                  //   loadclear = false;
+                  // });
+                  // getMall =
+                  //     getMeallpubileinClass2(token: FFAppState().tokenStore);
+                  // await getMall.then((getMeAllThen) {
+                  //   print("ค่าวางไหม ${getMeAllThen.isEmpty}");
+
+                  //   print("บันทึกข้อมูล");
+                  //   FFAppState().itemsduty = getMeAllThen;
+                  // });
+
+                  // await getMeallpubileinClass(token: FFAppState().tokenStore);
+                  setState(() {});
+
+                  print("โหลดหน้าใหม่");
+                },
+                backgroundColor: FlutterFlowTheme.of(context).primaryRed,
+                elevation: 10,
+                label: loadclear == false
+                    ? Text("รีโหลดหน้า")
+                    : CircularProgressIndicator(backgroundColor: Colors.white),
+              ),
             ],
           ),
           SizedBox(
