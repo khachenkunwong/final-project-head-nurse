@@ -62,46 +62,59 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
         lord1 == false
             ? TextButton(
                 onPressed: () async {
-                  if (textControllernamegroup!.text.length != 0 &&
-                      textControllernamegroup!.text != null) {
-                    setState(() {
-                      lord1 = true;
-                    });
+                  try {
+                    if (textControllernamegroup!.text.length != 0 &&
+                        textControllernamegroup!.text != null) {
+                      setState(() {
+                        lord1 = true;
+                      });
 
-                    createGroupOutput = await CreateGroupCall.call(
-                      token: FFAppState().tokenStore,
-                      nameGroup: '${textControllernamegroup?.text}',
-                    );
-                    if ((createGroupOutput?.statusCode ?? 200) == 200) {
-                      if (mounted) {
-                        setState(() {
-                          lord1 = false;
-                        });
-                      }
-                      await actions.notifica(
-                        context,
-                        'สร้างกลุ่มเสร็จสิ้น',
+                      createGroupOutput = await CreateGroupCall.call(
+                        token: FFAppState().tokenStore,
+                        nameGroup: '${textControllernamegroup?.text}',
                       );
+                      if ((createGroupOutput?.statusCode ?? 200) == 200) {
+                        if (mounted) {
+                          setState(() {
+                            lord1 = false;
+                          });
+                        }
+                        await actions.notifica(
+                          context,
+                          'สร้างกลุ่มเสร็จสิ้น',
+                        );
+                      } else {
+                        if (mounted) {
+                          setState(() {
+                            lord1 = false;
+                          });
+                        }
+                        await actions.notifica(
+                          context,
+                          'สร้างกลุ่มไม่เสำเร็จ',
+                        );
+                      }
+
+                      if (mounted) {
+                        setState(() => lord1 = false);
+                      }
+                      Navigator.pop(context);
                     } else {
-                      if (mounted) {
-                        setState(() {
-                          lord1 = false;
-                        });
-                      }
                       await actions.notifica(
                         context,
-                        'สร้างกลุ่มไม่เสำเร็จ',
+                        'กรุณากรอกชื่อกลุ่ม',
                       );
                     }
-
+                  } catch (error) {
+                    print(error);
                     if (mounted) {
-                      setState(() => lord1 = false);
+                      setState(() {
+                        lord1 = false;
+                      });
                     }
-                    Navigator.pop(context);
-                  } else {
                     await actions.notifica(
                       context,
-                      'กรุณากรอกชื่อกลุ่ม',
+                      'สร้างกลุ่มไม่เสำเร็จ',
                     );
                   }
                 },
@@ -111,11 +124,11 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
                 ),
               )
             : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(
+                padding: const EdgeInsets.all(8.0),
+                child: CircularProgressIndicator(
                   color: Color(0xFF00A2FD),
                 ),
-            )
+              )
       ],
     );
   }

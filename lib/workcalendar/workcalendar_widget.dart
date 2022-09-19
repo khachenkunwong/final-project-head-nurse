@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:hos_windown/app_state.dart';
 import 'package:hos_windown/flutter_flow/flutter_flow_util.dart';
 import 'package:hos_windown/model/dutysave.dart';
@@ -61,7 +62,9 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
   }
 
   Future<String> resetduty() async {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
     try {
       final res = await http.get(
         Uri.parse("$url/api/group/schedule/me/all/AAA-บ้านม่วง"),
@@ -111,7 +114,9 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
       //  print("ผ่าน ${res.body}");
       return res.body;
     } else {
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -348,15 +353,11 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
   //                   color: const Color(0xFFF1F1F1),
   //                   child: Center(child: Text('วันที่ $i')))),
   EmployeeDataSource1? currentPage;
-  void callback(EmployeeDataSource1 nextPage) {
-    //  print("callback");
-    setState(() {
-      this.currentPage = nextPage;
-    });
-  }
 
   Future<String> getMeallpubileinClass2({required String token}) async {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
     try {
       final res = await http.get(
         Uri.parse("$url/api/group/schedule/me/all/AAA"),
@@ -391,16 +392,18 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
 
   @override
   void initState() {
-    super.initState();
-    getMall = getMeallpubileinClass2(token: FFAppState().tokenStore);
-    getMall.then((getMeAllThen) {
-      print("ค่าวางไหม ${getMeAllThen.isEmpty}");
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      getMall = getMeallpubileinClass2(token: FFAppState().tokenStore);
+      await getMall.then((getMeAllThen) {
+        print("ค่าวางไหม ${getMeAllThen.isEmpty}");
 
-      print("บันทึกข้อมูล");
-      FFAppState().itemsduty = getMeAllThen;
+        print("บันทึกข้อมูล");
+        FFAppState().itemsduty = getMeAllThen;
+      });
+
+      await getMeallpubileinClass(token: FFAppState().tokenStore);
     });
-
-    getMeallpubileinClass(token: FFAppState().tokenStore);
+    super.initState();
   }
 
   // Items = [
@@ -461,7 +464,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
         return Center(child: CircularProgressIndicator());
       }
     } catch (error) {
-      print("error");
+      print("error $error");
       return Scaffold(
           floatingActionButton: Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -482,10 +485,6 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                       if (updataschedule.statusCode == 200) {
                         if (mounted) {
                           setState(() {
-                            getMeallpubileinClass2(
-                                token: FFAppState().tokenStore);
-                            getMeallpubileinClass(
-                                token: FFAppState().tokenStore);
                             loadSave = false;
                           });
                         }
@@ -525,9 +524,11 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                         loadclear = true;
                       });
                       resetduty();
-                      setState(() {
-                        loadclear = false;
-                      });
+                      if (mounted) {
+                        setState(() {
+                          loadclear = false;
+                        });
+                      }
 
                       print("ล้างแล้ว");
                     },
@@ -589,7 +590,9 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
 
                       // await getMeallpubileinClass(
                       //     token: FFAppState().tokenStore);
-                      setState(() {});
+                      if (mounted) {
+                        setState(() {});
+                      }
 
                       print("โหลดหน้าใหม่");
                     },
@@ -608,7 +611,13 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
               ),
             ],
           ),
-          body: Center(child: Text("เกิดข้อผิดพลาด")));
+          body: Center(
+              child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircularProgressIndicator(
+              color: Color(0xFF00A2FD),
+            ),
+          )));
     }
 
     return Scaffold(
@@ -676,9 +685,11 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                     loadclear = true;
                   });
                   resetduty();
-                  setState(() {
-                    loadclear = false;
-                  });
+                  if (mounted) {
+                    setState(() {
+                      loadclear = false;
+                    });
+                  }
 
                   print("ล้างแล้ว");
                 },
@@ -740,7 +751,9 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                   // });
 
                   // await getMeallpubileinClass(token: FFAppState().tokenStore);
-                  setState(() {});
+                  if (mounted) {
+                    setState(() {});
+                  }
 
                   print("โหลดหน้าใหม่");
                 },
