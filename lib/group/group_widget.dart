@@ -3,6 +3,7 @@ import 'package:hos_windown/group/creategroup_widget.dart';
 
 import '../backend/api_requests/api_calls.dart';
 import '../backend/pubilc_.dart';
+import '../custom_code/actions/notifica.dart';
 import '../flutter_flow/flutter_flow_icon_button.dart';
 import '../flutter_flow/flutter_flow_theme.dart';
 import '../flutter_flow/flutter_flow_util.dart';
@@ -15,6 +16,7 @@ import 'dart:convert' as convert;
 
 import '../model/all_member_without_me.dart';
 import '../model/member_model.dart';
+import '../model/not_manager_group_model.dart';
 import 'search_widget.dart';
 
 class GroupWidget extends StatefulWidget {
@@ -25,19 +27,71 @@ class GroupWidget extends StatefulWidget {
 }
 
 class _GroupWidgetState extends State<GroupWidget> {
-  
   ApiCallResponse? getDeleteMember;
   Completer<ApiCallResponse>? _apiRequestCompleter;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future<List<Group>>? futureMember;
   Future<List<Datum>>? futureAllDuty;
-  List<Datum>? listvievDutySearch;
-  List<Datum>? listSearchEmail;
+  List<MemberNotManagerGroup>? listvievDutySearch;
+  List<MemberNotManagerGroup>? listSearchEmail;
+  List<Datum>? listvievDutySearch2;
+  List<Datum>? listSearchEmail2;
 
   Map<String, bool> deleteLord = {};
   bool lord1 = false;
   var refresh;
+  // แสดงข้อมูลที่ยังไม่ได้จัดกลุ่ม
+  Future<List<MemberNotManagerGroup>> getManagerNotGroupModel(
+      {required String token}) async {
+    try {
+      print(token);
+      final res = await http.get(
+        Uri.parse("$url/api/admin/member"),
+        headers: {
+          "Accept": "application/json",
+          "Access-Control_Allow_Origin": "*",
+          "x-access-token": "$token"
+        },
+      );
+      print("getManagerModel state ${res.statusCode}");
+      print("getManagerModel body ${res.body}");
+
+      final body = convert.json.decode(res.body);
+      final _futureNotManagerGroup =
+          GetNotManagerGroup.fromJson(body as Map<String, dynamic>);
+      final futureNotManagerGroup =
+          _futureNotManagerGroup.members as List<MemberNotManagerGroup>;
+      if (res.statusCode == 200) {
+        // for (int i = 0; i < futureNotManagerGroup.length; i++) {
+        //   actorNotMangerGroup.add(futureNotManagerGroup[i].actor.toString());
+        // }
+        if (listvievDutySearch?.length == 0 || listvievDutySearch == null) {
+          setState(() {
+            listvievDutySearch = futureNotManagerGroup;
+            listSearchEmail = listvievDutySearch;
+          });
+        }
+
+        await notifica(context, "แสดงข้อมูลที่ยังไม่ได้จัดกลุ่มเสำเร็จ",
+            color: Colors.green);
+        return futureNotManagerGroup;
+      } else {
+        await notifica(
+          context,
+          "แสดงข้อมูลที่ยังไม่ได้จัดกลุ่มไม่สำเร็จ",
+        );
+      }
+
+      return futureNotManagerGroup;
+    } catch (error) {
+      print(error);
+      await Future.delayed(Duration(seconds: 5));
+      setState(() {});
+    }
+    return [];
+  }
+
   Future<List<Group>> getMemberModel({required String token}) async {
     try {
       setState(() {});
@@ -123,10 +177,10 @@ class _GroupWidgetState extends State<GroupWidget> {
         final _futureAllDuty =
             AllMemberwithout.fromJson(bodyAllDuty as Map<String, dynamic>);
         final futureAllDuty = _futureAllDuty.data as List<Datum>;
-        if (listvievDutySearch?.length == 0 || listvievDutySearch == null) {
+        if (listvievDutySearch2?.length == 0 || listvievDutySearch2 == null) {
           setState(() {
-            listvievDutySearch = futureAllDuty;
-            listSearchEmail = listvievDutySearch;
+            listvievDutySearch2 = futureAllDuty;
+            listSearchEmail2 = listvievDutySearch2;
           });
         }
 
@@ -173,7 +227,7 @@ class _GroupWidgetState extends State<GroupWidget> {
 
       if (res.statusCode == 200) {
         print("yyyyy ${res.body}}");
-        await actions.notifica(context, "ลบสมาชิกสำเร็จ");
+        await actions.notifica(context, "ลบสมาชิกสำเร็จ",color: Colors.green);
       } else {
         print("yyyyy ${res.body}}");
         await actions.notifica(context, "ลบสมาชิกไม่สำเร็จ");
@@ -201,11 +255,13 @@ class _GroupWidgetState extends State<GroupWidget> {
   Widget build(BuildContext context) {
     futureMember = getMemberModel(token: FFAppState().tokenStore);
     futureAllDuty = getAllMemberWhithOut(token: FFAppState().tokenStore);
+    getManagerNotGroupModel(token: FFAppState().tokenStore);
+    // futureAllDuty = getAllMemberWhithOut(token: FFAppState().tokenStore);
     print("scaffold");
-    print("${listvievDutySearch}");
-    if (listvievDutySearch?.length == 0 || listvievDutySearch == null) {
+    print("${listvievDutySearch2}");
+    if (listvievDutySearch2?.length == 0 || listvievDutySearch2 == null) {
       setState(() {
-        listSearchEmail = listvievDutySearch;
+        listSearchEmail2 = listvievDutySearch2;
       });
     }
     return Scaffold(
@@ -368,7 +424,7 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                 listvievDutySearch:
                                                                     listvievDutySearch
                                                                         as List<
-                                                                            Datum>,
+                                                                            MemberNotManagerGroup>,
                                                                 nameGroup: ItemGroup
                                                                     .nameGroup
                                                                     .toString());
@@ -661,7 +717,6 @@ class _GroupWidgetState extends State<GroupWidget> {
                       await showDialog(
                           context: context,
                           builder: (alertDialogContext) {
-                            
                             return CreateGroupWidget();
                           });
                     },

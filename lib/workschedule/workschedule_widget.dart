@@ -226,7 +226,7 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
                           setState(() => FFAppState().tokenStore = '');
                           await actions.notifica(
                             context,
-                            'ออกจากระบบแล้ว',
+                            'ออกจากระบบแล้ว',color: Colors.green
                           );
                           Navigator.pushReplacement(
                               context,

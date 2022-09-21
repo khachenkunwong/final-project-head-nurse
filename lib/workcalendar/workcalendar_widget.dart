@@ -490,7 +490,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                         }
                         await actions.notifica(
                           context,
-                          'บันทึกแล้ว',
+                          'บันทึกแล้ว',color: Colors.green
                         );
                       } else {
                         if (mounted) {
@@ -651,7 +651,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                     }
                     await actions.notifica(
                       context,
-                      'บันทึกแล้ว',
+                      'บันทึกแล้ว',color: Colors.green,
                     );
                   } else {
                     if (mounted) {

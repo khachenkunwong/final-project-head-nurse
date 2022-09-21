@@ -228,6 +228,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       await actions.notifica(
                                         context,
                                         'เข้าสู่ระบบสำเร็จ',
+                                        color: Colors.green
                                       );
 
                                       // stateCreateTable =

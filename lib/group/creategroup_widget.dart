@@ -82,6 +82,7 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
                         await actions.notifica(
                           context,
                           'สร้างกลุ่มเสร็จสิ้น',
+                          color: Colors.green
                         );
                       } else {
                         if (mounted) {

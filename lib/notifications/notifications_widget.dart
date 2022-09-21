@@ -53,7 +53,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
           GetChangDuty.fromJson(body as Map<String, dynamic>);
       final futureGetChangDuty = _futureGetChangDuty.data as List<Datum>;
       if (res.statusCode == 200) {
-        await notifica(context, "แสดงข้อมูลสำเร็จ");
+        await notifica(context, "แสดงข้อมูลสำเร็จ",color: Colors.green);
         setState(() {});
         return futureGetChangDuty;
       } else {
@@ -194,72 +194,74 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                       return Builder(builder: (context) {
                         return Column(
                           children: [
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  329, 0, 329, 0),
-                              child: Card(
-                                clipBehavior: Clip.antiAliasWithSaveLayer,
-                                color:
-                                    FlutterFlowTheme.of(context).secondaryWhite,
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      5, 5, 5, 5),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        width: 56,
-                                        height: 56,
-                                        clipBehavior: Clip.antiAlias,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Image.network(
-                                          'https://picsum.photos/seed/260/600',
-                                        ),
-                                      ),
-                                      Text(
-                                        // '${getDataLeader!.fristName} ${getDataLeader.lastName} (${getDataLeader.actor})',
-                                        "${snapshot.data!.first.member2!.fristName} ${snapshot.data!.first.member2!.lastName} (${snapshot.data!.first.member2!.actor})",
-                                        style:
-                                            FlutterFlowTheme.of(context).title2,
-                                      ),
-                                      // Text(
-                                      //   'แลกทั้งหมด',
-                                      //   textAlign: TextAlign.center,
-                                      //   style: FlutterFlowTheme.of(context)
-                                      //       .bodyText1
-                                      //       .override(
-                                      //         fontFamily: 'Mitr',
-                                      //         color: FlutterFlowTheme.of(context)
-                                      //             .primaryBlue,
-                                      //       ),
-                                      // ),
-                                      FlutterFlowIconButton(
-                                        borderColor: Colors.transparent,
-                                        borderRadius: 30,
-                                        borderWidth: 1,
-                                        buttonSize: 60,
-                                        icon: Icon(
-                                          Icons.keyboard_arrow_up,
-                                          color: Colors.black,
-                                          size: 30,
-                                        ),
-                                        onPressed: () {
-                                          print('IconButton pressed ...');
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
+
+                            // Padding(
+                            //   padding: EdgeInsetsDirectional.fromSTEB(
+                            //       329, 0, 329, 0),
+                            //   child: Card(
+                            //     clipBehavior: Clip.antiAliasWithSaveLayer,
+                            //     color:
+                            //         FlutterFlowTheme.of(context).secondaryWhite,
+                            //     elevation: 2,
+                            //     shape: RoundedRectangleBorder(
+                            //       borderRadius: BorderRadius.circular(10),
+                            //     ),
+                            //     child: Padding(
+                            //       padding: EdgeInsetsDirectional.fromSTEB(
+                            //           5, 5, 5, 5),
+                            //       child: Row(
+                            //         mainAxisSize: MainAxisSize.max,
+                            //         mainAxisAlignment:
+                            //             MainAxisAlignment.spaceBetween,
+                            //         children: [
+                            //           Container(
+                            //             width: 56,
+                            //             height: 56,
+                            //             clipBehavior: Clip.antiAlias,
+                            //             decoration: BoxDecoration(
+                            //               shape: BoxShape.circle,
+                            //             ),
+                            //             child: Image.network(
+                            //               'https://picsum.photos/seed/260/600',
+                            //             ),
+                            //           ),
+                            //           Text(
+                            //             // '${getDataLeader!.fristName} ${getDataLeader.lastName} (${getDataLeader.actor})',
+                            //             "${snapshot.data!.first.member2!.fristName} ${snapshot.data!.first.member2!.lastName} (${snapshot.data!.first.member2!.actor})",
+                            //             style:
+                            //                 FlutterFlowTheme.of(context).title2,
+                            //           ),
+                            //           // Text(
+                            //           //   'แลกทั้งหมด',
+                            //           //   textAlign: TextAlign.center,
+                            //           //   style: FlutterFlowTheme.of(context)
+                            //           //       .bodyText1
+                            //           //       .override(
+                            //           //         fontFamily: 'Mitr',
+                            //           //         color: FlutterFlowTheme.of(context)
+                            //           //             .primaryBlue,
+                            //           //       ),
+                            //           // ),
+                            //           FlutterFlowIconButton(
+                            //             borderColor: Colors.transparent,
+                            //             borderRadius: 30,
+                            //             borderWidth: 1,
+                            //             buttonSize: 60,
+                            //             icon: Icon(
+                            //               Icons.keyboard_arrow_up,
+                            //               color: Colors.black,
+                            //               size: 30,
+                            //             ),
+                            //             onPressed: () {
+                            //               print('IconButton pressed ...');
+                            //             },
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                            
                             ListView.builder(
                                 padding: EdgeInsets.zero,
                                 physics: NeverScrollableScrollPhysics(),
@@ -284,7 +286,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                       null) {
                                     stoteDuty2 = "เช้า";
                                   } else if (snapshot.data![indexgetInvite]
-                                          .memberShift1![0].noon !=
+                                          .memberShift2![0].noon !=
                                       null) {
                                     stoteDuty2 = "บ่าย";
                                   } else {
@@ -452,23 +454,23 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                             ),
                                             daysOfWeekHeight: 50,
                                             yearduty: int.parse(snapshot
-                                                .data!.first.duty2!.year
+                                                .data![indexgetInvite].duty2!.year
                                                 .toString()),
                                             monthduty: int.parse(snapshot
-                                                .data!.first.duty2!.month
+                                                .data![indexgetInvite].duty2!.month
                                                 .toString()),
                                             dayduty: int.parse(snapshot
-                                                .data!.first.duty2!.day
+                                                .data![indexgetInvite].duty2!.day
                                                 .toString()),
                                             changTwoDuty: true,
                                             yearduty2: int.parse(snapshot
-                                                .data!.first.duty1!.year
+                                                .data![indexgetInvite].duty1!.year
                                                 .toString()),
                                             monthduty2: int.parse(snapshot
-                                                .data!.first.duty1!.month
+                                                .data![indexgetInvite].duty1!.month
                                                 .toString()),
                                             dayduty2: int.parse(snapshot
-                                                .data!.first.duty1!.day
+                                                .data![indexgetInvite].duty1!.day
                                                 .toString()),
                                           ),
                                           
@@ -665,13 +667,13 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                                                 .tokenStore,
                                                             approve: true,
                                                             changId:
-                                                                '${snapshot.data![0].id}');
+                                                                '${snapshot.data![indexgetInvite].id}');
                                                     if (getState.statusCode ==
                                                         200) {
                                                       print(
                                                           "getstata ${getState.jsonBody}");
                                                       await notifica(
-                                                          context, "สำเร็จ");
+                                                          context, "สำเร็จ",color: Colors.green);
                                                     } else {
                                                       print(
                                                           "getstata ${getState.jsonBody}");
@@ -703,13 +705,13 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                                                 .tokenStore,
                                                             approve: false,
                                                             changId:
-                                                                '${snapshot.data![0].id}');
+                                                                '${snapshot.data![indexgetInvite].id}');
                                                     if (getState.statusCode ==
                                                         200) {
                                                       print(
                                                           "getstata ${getState.jsonBody}");
                                                       await notifica(
-                                                          context, "สำเร็จ");
+                                                          context, "สำเร็จ",color: Colors.green);
                                                     } else {
                                                       print(
                                                           "getstata ${getState.jsonBody}");

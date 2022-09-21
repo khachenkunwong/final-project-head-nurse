@@ -7,9 +7,10 @@ import '../flutter_flow/flutter_flow_theme.dart';
 import '../custom_code/actions/index.dart' as actions;
 import '../model/all_member_without_me.dart';
 import '../model/member_model.dart';
+import '../model/not_manager_group_model.dart';
 
 class SearchWidget extends StatefulWidget {
-  final List<Datum> listvievDutySearch;
+  final List<MemberNotManagerGroup> listvievDutySearch;
   final String nameGroup;
   const SearchWidget(
       {Key? key, required this.listvievDutySearch, required this.nameGroup})
@@ -21,7 +22,7 @@ class SearchWidget extends StatefulWidget {
 
 class _SearchWidgetState extends State<SearchWidget> {
   late TextEditingController searchEdit;
-  List<Datum> listSearchEmail = [];
+  List<MemberNotManagerGroup> listSearchEmail = [];
   Map<String, bool> searchLord = {};
   @override
   void initState() {
@@ -150,7 +151,8 @@ class _SearchWidgetState extends State<SearchWidget> {
                               if (addMemberOutPut.statusCode == 200) {
                                 await actions.notifica(
                                   context,
-                                  'เพิ่มสมาชิกสำเร็จ',
+                                  'ส่งคำเชิญแล้ว',
+                                  color: Colors.green
                                 );
                                 if (mounted) {
                                   setState(() {
@@ -161,7 +163,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                               } else {
                                 await actions.notifica(
                                   context,
-                                  'เพิ่มสมาชิกไม่เสำเร็จ',
+                                  'ส่งคำเชิญไม่สำเร็จ',
                                 );
                                 if (mounted) {
                                   setState(() {
