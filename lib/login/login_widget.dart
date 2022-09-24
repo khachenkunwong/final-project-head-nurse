@@ -161,21 +161,24 @@ class _LoginWidgetState extends State<LoginWidget> {
                                 obscureText: !passwordVisibility,
                                 decoration: InputDecoration(
                                   hintText: 'กรอกรหัสผ่านตรงนี้',
+                                  hintStyle: GoogleFonts.mitr(
+                                    color: Color(0xFFBDBDBD),
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 28,
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
+                                      color: Color(0xFFBDBDBD),
                                       width: 1,
                                     ),
-                                    borderRadius: BorderRadius.circular(50),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
+                                      color: Color(0xFF727272),
                                       width: 1,
                                     ),
-                                    borderRadius: BorderRadius.circular(50),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                   filled: true,
                                   fillColor: Colors.white,
@@ -194,7 +197,11 @@ class _LoginWidgetState extends State<LoginWidget> {
                                     ),
                                   ),
                                 ),
-                                style: FlutterFlowTheme.of(context).title3,
+                                style: GoogleFonts.mitr(
+                                  color: Color(0xFF727272),
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 28,
+                                ),
                               ),
                             ],
                           ),
@@ -226,10 +233,8 @@ class _LoginWidgetState extends State<LoginWidget> {
                                       // );
                                       print("frist ${FFAppState().tokenStore}");
                                       await actions.notifica(
-                                        context,
-                                        'เข้าสู่ระบบสำเร็จ',
-                                        color: Colors.green
-                                      );
+                                          context, 'เข้าสู่ระบบสำเร็จ',
+                                          color: Colors.green);
 
                                       // stateCreateTable =
                                       //     await CreateTableCall.call();

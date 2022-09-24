@@ -13,8 +13,7 @@ class PostRegisterCall {
     required String email,
     required String password,
   }) {
-    final body =
-        '''
+    final body = '''
 {
   "frist_name": "${fristName}",
   "last_name": "${lastName}",
@@ -212,8 +211,7 @@ class UpdateProfileCall {
     required String fristName,
     required String lastName,
   }) {
-    final body =
-        '''
+    final body = '''
 {
   "frist_name": "${fristName}",
   "last_name": "${lastName}"
@@ -237,14 +235,47 @@ class UpdateProfileCall {
     );
   }
 }
+
+class UpdateLeaveApproveCall {
+  static Future<ApiCallResponse> call({
+    required String token,
+    required String id,
+    required bool approve,
+  }) {
+    final body = '''
+{
+  "requestID": "$id",
+  "approve": $approve
+}''';
+    print("$body");
+    return ApiManager.instance.makeApiCall(
+      callName: 'updateLeaveApprove',
+      apiUrl: '$url/api/req/leader/take/leave/approve',
+      callType: ApiCallType.PATCH,
+      headers: {
+        'content-type': 'application/json',
+        'Accept': 'application/json',
+        'Access-Control_Allow_Origin': '*',
+        'x-access-token': '$token',
+      },
+      params: {
+        "requestID": "$id",
+        "approve": approve,
+      },
+      body: body,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+    );
+  }
+}
+
 class UpdateApproveCall {
   static Future<ApiCallResponse> call({
     required String token,
     required bool approve,
     required String changId,
   }) {
-    final body =
-        '''
+    final body = '''
 {
   "approve": "${approve}",
   "changId": "${changId}"
@@ -255,6 +286,7 @@ class UpdateApproveCall {
       callType: ApiCallType.PATCH,
       headers: {
         'content-type': 'application/json',
+        'Accept': 'application/json',
         'Access-Control_Allow_Origin': '*',
         'x-access-token': '$token',
       },
@@ -268,7 +300,6 @@ class UpdateApproveCall {
     );
   }
 }
-
 
 class UpdateSchedule {
   static Future<ApiCallResponse> call() {
@@ -510,8 +541,6 @@ class LogoutCall {
   }
 }
 
-
-
 class GetAllCall {
   static Future<ApiCallResponse> call(
       {required String token, required String nameGroup}) {
@@ -545,6 +574,7 @@ class AutoDutyCall {
       returnBody: true,
     );
   }
+
   static dynamic getState(dynamic response) => getJsonField(
         response,
         r'''$''',
@@ -585,8 +615,7 @@ class AddMemberCall {
     required String email,
     required String nameGroup,
   }) {
-    final body =
-        '''
+    final body = '''
 {
   "email": "${email}",
   "name_group": "${nameGroup}"

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../app_state.dart';
 import '../backend/api_requests/api_calls.dart';
@@ -32,29 +33,66 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
         height: 100.0,
         width: 500.0,
         child: Center(
-          child: TextFormField(
-            controller: textControllernamegroup,
-            obscureText: false,
-            decoration: InputDecoration(
-              hintText: 'กรุณาใส่ชื่อกลุ่ม',
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).secondaryText,
-                  width: 1,
+          // ยังไม่เสร็จ
+          child: Focus(
+            onKey: (node, event) {
+              KeyEventResult result = KeyEventResult.ignored;
+              // Activates all key bindings that match, returns handled if any handle it.
+              // for (final ShortcutActivator activator in bindings.keys) {
+              //   if (activator.accepts(event, RawKeyboard.instance)) {
+              //     bindings[activator]!.call();
+              //     result = KeyEventResult.handled;
+              //   }
+              // }
+              // print("result ${result} - $node - $event ");
+              if (event.logicalKey.keyLabel == "Control Left" && event.logicalKey.keyLabel == "Meta Left"){
+                result = KeyEventResult.handled;
+              }
+              return result;
+            },
+            onKeyEvent: (node, event) {
+              KeyEventResult result2 = KeyEventResult.ignored;
+              if (event.logicalKey.keyLabel == "Control Left" && event.logicalKey.keyLabel == "Meta Left"){
+                result2 = KeyEventResult.handled;
+              }
+
+
+              print("result2 ${event.logicalKey.keyLabel}");
+              return result2;
+            },
+            child: TextFormField(
+              controller: textControllernamegroup,
+              obscureText: false,
+              decoration: InputDecoration(
+                hintText: 'กรุณาใส่ชื่อกลุ่ม',
+                hintStyle: GoogleFonts.mitr(
+                  color: Color(0xFFBDBDBD),
+                  fontWeight: FontWeight.normal,
+                  fontSize: 28,
                 ),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).secondaryText,
-                  width: 1,
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFBDBDBD),
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                borderRadius: BorderRadius.circular(15),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF727272),
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                filled: true,
+                fillColor: Colors.white,
               ),
-              filled: true,
-              fillColor: Colors.white,
+              style: GoogleFonts.mitr(
+                color: Color(0xFF727272),
+                fontWeight: FontWeight.normal,
+                fontSize: 28,
+              ),
             ),
-            style: FlutterFlowTheme.of(context).title3,
           ),
         ),
       ),
@@ -79,11 +117,8 @@ class _CreateGroupWidgetState extends State<CreateGroupWidget> {
                             lord1 = false;
                           });
                         }
-                        await actions.notifica(
-                          context,
-                          'สร้างกลุ่มเสร็จสิ้น',
-                          color: Colors.green
-                        );
+                        await actions.notifica(context, 'สร้างกลุ่มเสร็จสิ้น',
+                            color: Colors.green);
                       } else {
                         if (mounted) {
                           setState(() {
