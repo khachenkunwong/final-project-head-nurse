@@ -17,6 +17,7 @@ import 'dart:convert' as convert;
 import '../model/all_member_without_me.dart';
 import '../model/member_model.dart';
 import '../model/not_manager_group_model.dart';
+
 import 'search_widget.dart';
 
 class GroupWidget extends StatefulWidget {
@@ -71,7 +72,6 @@ class _GroupWidgetState extends State<GroupWidget> {
     }
   }
 
-  // แสดงข้อมูลที่ยังไม่ได้จัดกลุ่ม
   Future<List<MemberNotManagerGroup>> getManagerNotGroupModel(
       {required String token}) async {
     try {
@@ -96,6 +96,59 @@ class _GroupWidgetState extends State<GroupWidget> {
         // for (int i = 0; i < futureNotManagerGroup.length; i++) {
         //   actorNotMangerGroup.add(futureNotManagerGroup[i].actor.toString());
         // }
+
+        if (listvievDutySearch?.length == 0 || listvievDutySearch == null) {
+          setState(() {
+            listvievDutySearch = futureNotManagerGroup;
+            listSearchEmail = listvievDutySearch;
+          });
+        }
+
+        await notifica(context, "แสดงข้อมูลที่ยังไม่ได้จัดกลุ่มเสำเร็จ",
+            color: Colors.green);
+        return futureNotManagerGroup;
+      } else {
+        await notifica(
+          context,
+          "แสดงข้อมูลที่ยังไม่ได้จัดกลุ่มไม่สำเร็จ",
+        );
+      }
+
+      return futureNotManagerGroup;
+    } catch (error) {
+      print(error);
+      await Future.delayed(Duration(seconds: 5));
+      setState(() {});
+    }
+    return [];
+  }
+
+  // แสดงข้อมูลที่ยังไม่ได้จัดกลุ่ม
+  Future<List<MemberNotManagerGroup>> getManagerNotGroupModelsavalistseach(
+      {required String token}) async {
+    try {
+      print(token);
+      final res = await http.get(
+        Uri.parse("$url/api/admin/member"),
+        headers: {
+          "Accept": "application/json",
+          "Access-Control_Allow_Origin": "*",
+          "x-access-token": "$token"
+        },
+      );
+      print("getManagerModel state ${res.statusCode}");
+      print("getManagerModel body ${res.body}");
+
+      final body = convert.json.decode(res.body);
+      final _futureNotManagerGroup =
+          GetNotManagerGroup.fromJson(body as Map<String, dynamic>);
+      final futureNotManagerGroup =
+          _futureNotManagerGroup.members as List<MemberNotManagerGroup>;
+      if (res.statusCode == 200) {
+        // for (int i = 0; i < futureNotManagerGroup.length; i++) {
+        //   actorNotMangerGroup.add(futureNotManagerGroup[i].actor.toString());
+        // }
+
         if (listvievDutySearch?.length == 0 || listvievDutySearch == null) {
           setState(() {
             listvievDutySearch = futureNotManagerGroup;
@@ -395,13 +448,19 @@ class _GroupWidgetState extends State<GroupWidget> {
                       }
                       // final GetGroupMyMemberResponse = snapshotGroup.data!;
                       // if (snapshotGroup.data.isEmpty)
-                      print("snapshotGroup.data.isEmpty ${snapshotGroup.data?.length}");
+                      print(
+                          "snapshotGroup.data.isEmpty ${snapshotGroup.data?.length}");
                       if (snapshotGroup.data?.isEmpty == null ||
                           snapshotGroup.data?.length == 0) {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Center(child: Text("ยังไม่มีสร้างกลุ่ม",style: GoogleFonts.mitr(fontSize: 24,color: Colors.black),)),
+                            Center(
+                                child: Text(
+                              "ยังไม่มีสร้างกลุ่ม",
+                              style: GoogleFonts.mitr(
+                                  fontSize: 24, color: Colors.black),
+                            )),
                           ],
                         );
                       }
@@ -553,20 +612,29 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                         size: 40,
                                                       ),
                                                       onPressed: () async {
+                                                        final listseach =  await getManagerNotGroupModelsavalistseach(
+                                                            token: FFAppState()
+                                                                .tokenStore);
                                                         await showDialog(
                                                           context: context,
                                                           builder:
                                                               (alertDialogContext) {
                                                             return SearchWidget(
+                                                                itemGroup:
+                                                                    ItemGroup,
+                                                                // listvievDutySearch2:
+                                                                //     listvievDutySearch
+                                                                //         as List<
+                                                                //             MemberNotManagerGroup>,
                                                                 listvievDutySearch:
-                                                                    listvievDutySearch
-                                                                        as List<
-                                                                            MemberNotManagerGroup>,
+                                                                    listseach
+                                                                        ,
                                                                 nameGroup: ItemGroup
                                                                     .nameGroup
                                                                     .toString());
                                                           },
                                                         );
+                                                        
                                                       },
                                                     ),
                                                   ],

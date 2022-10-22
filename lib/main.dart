@@ -8,6 +8,7 @@ import 'flutter_flow/internationalization.dart';
 import 'package:floating_bottom_navigation_bar/floating_bottom_navigation_bar.dart';
 import 'index.dart';
 import 'workschedule/workschedule_home.dart';
+import 'workschedule/workschedule_home2.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -110,7 +111,7 @@ class _NavBarPageState extends State<NavBarPage> {
   Widget build(BuildContext context) {
     final tabs = {
       'workschedule': WorkscheduleWidget(),
-      'workcalendar': WorksheduleHome(),
+      'workcalendar': WorksheduleHome2(),
       'notifications': NotificationsWidget(),
       // 'history': HistoryWidget(),
       'group': GroupWidget(),

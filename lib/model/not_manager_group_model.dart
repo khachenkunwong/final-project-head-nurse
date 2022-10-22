@@ -8,6 +8,9 @@ GetNotManagerGroup getNotManagerGroupFromJson(String str) => GetNotManagerGroup.
 
 String getNotManagerGroupToJson(GetNotManagerGroup data) => json.encode(data.toJson());
 
+MemberNotManagerGroup getMemberNotManagerGroupFromJson(String str) => MemberNotManagerGroup.fromJson(json.decode(str));
+String getMemberNotManagerGroupToJson(MemberNotManagerGroup data) => json.encode(data.toJson());
+
 class GetNotManagerGroup {
     GetNotManagerGroup({
         this.members,

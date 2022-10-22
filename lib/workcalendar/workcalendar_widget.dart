@@ -37,6 +37,8 @@ class WorkcalendarWidget extends StatefulWidget {
 class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
   late EmployeeDataSource1 _employeeDataSource;
   List<List<Employee1>> _employees = <List<Employee1>>[];
+  DateTime date = DateTime.now();
+
   var num = 1;
   int? a;
   List day = [1, 2];
@@ -53,6 +55,8 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
   bool loadSave = false;
   bool loadgroupmange = false;
   bool loadclear = false;
+  // DataGridController controller = DataGridController();
+
   late ApiCallResponse updataschedule;
   var sum;
   late Map<String, double> columnWidths = {
@@ -74,7 +78,13 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
     indexseachremove = FFAppState()
         .itemsdutyList
         .indexWhere((element) => element.contains("${widget.nameGroup}"));
-    FFAppState().itemsdutyList.removeAt(indexseachremove);
+    try {
+      FFAppState().itemsdutyList.removeAt(indexseachremove);
+    } catch (error) {
+      print("เกิดข้อผิดพลาดในการลบข้อมูลใน list ของหน่อยความจำ");
+      FFAppState().itemsdutyList = [];
+    }
+
     // print(
     //     "FFAppState().itemsdutyList.removeAt len ${indexseachremove}${FFAppState().itemsdutyList.length}");
     // print(
@@ -108,13 +118,20 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
         // String yyuyy = ""
         final beforetojson =
             convert.jsonDecode('{"${widget.nameGroup}":${res.body}}');
-        print(" body33 ${beforetojson["new3"]}");
+        // print(" body33 ${beforetojson["new3"]}");
         final aftertojson = convert.jsonEncode(beforetojson);
         print("bodytojson $aftertojson");
         // bool checkrerun =
         //     FFAppState().itemsdutyList.contains("${widget.nameGroup}");
         // print("checkrerun $checkrerun");
         FFAppState().itemsdutyList.add(aftertojson);
+
+        final futureAllMe = allMeModelFromJson("${res.body}");
+        indexseachremove = FFAppState()
+            .itemsdutyList
+            .indexWhere((element) => element.contains("${widget.nameGroup}"));
+        print(
+            "new futureAllme ${FFAppState().itemsdutyList[indexseachremove]} ");
         // print("ทำงานได้");
         // FFAppState().itemsdutyList.add(aftertojson);
 
@@ -493,6 +510,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
       }
     } catch (error) {
       print("error $error");
+
       return Scaffold(
           floatingActionButton: Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -702,6 +720,11 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              // Text("armss"),
+              // TextButton(
+              //   child: const Text('DEFAULT LOCALE'),
+              //   onPressed: () {},
+              // ),
               FloatingActionButton.extended(
                 onPressed: () async {
                   // ยังกดไม่ได้จนกว่าจะแก้เอาเวรว่างออก
@@ -798,6 +821,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                     });
                   }
                   await notifica(context, "จัดกลุ่มแล้ว", color: Colors.green);
+                
                 },
                 backgroundColor: FlutterFlowTheme.of(context).primaryGreen,
                 elevation: 10,
@@ -881,47 +905,64 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
       //   centerTitle: false,
       //   elevation: 2,
       // ),
-      body: SfDataGrid(
-          gridLinesVisibility: GridLinesVisibility.both,
-          headerGridLinesVisibility: GridLinesVisibility.both,
-          allowColumnsResizing: true,
-          onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
-            print("details.width ${details.width}");
-            setState(() {
-              columnWidths[details.column.columnName] = details.width;
-            });
-            return true;
-          },
-          // ยืดให้เต็มจอ
-          // columnWidthMode: ColumnWidthMode.lastColumnFill,
-          // highlightRowOnHover: true,
-          // 2 ตัวด้านล่าง ทำให้สามารถกดเลือกได้แค่เเค่ตัวเดียว
-          allowEditing: true,
-          editingGestureType: EditingGestureType.tap,
-          selectionMode: SelectionMode.single,
-          navigationMode: GridNavigationMode.cell,
-          columnWidthMode: ColumnWidthMode.fitByColumnName,
-          frozenColumnsCount: 1,
-          footerFrozenColumnsCount: 2,
-          source: _employeeDataSource,
-          // ตัวนี้ ถ้าจำนวนไม่ตรงตามที่กำหนดไม่ว่าจะใส่ column name ถูกไหมก็จะ DataGridRowAdapter.cells.length: is not true
-          // ถ้าใส่ไม่ตรงstackedHeaderRows ก้จะเป็นครอปตารางไปเลย
-          // ทดสอบเพิ่มคอรัม
-          // ห้ามใส่เป็น 0
-          columns: getColumns(items.first.length - 1, columnWidths),
-          stackedHeaderRows: <StackedHeaderRow>[
-            // ห้ามใส่เป็น 0
-            StackedHeaderRow(
-                cells: _getStackedHeaderCell(items.first.length - 1)
-                // ตัวนี้อาจจะไม่มีผลในการสร้างตารางซ้อน
+      body: Column(
+        children: [
+          // Text("${date.day}/${date.month}/${date.year}"),
+          // TextButton(
+          //     onPressed: () async {
+          //       DateTime? newDate = await showDatePicker(
+          //           context: context,
+          //           initialDate: date,
+          //           firstDate: DateTime(1900),
+          //           lastDate: DateTime(2100));
+          //       if (newDate == null) return;
+          //       setState(() => date = newDate);
+          //     },
+          //     child: Text("aaaa")),
+          SfDataGrid(
+              // controller:,
+              gridLinesVisibility: GridLinesVisibility.both,
+              headerGridLinesVisibility: GridLinesVisibility.both,
+              allowColumnsResizing: true,
+              onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
+                print("details.width ${details.width}");
+                setState(() {
+                  columnWidths[details.column.columnName] = details.width;
+                });
+                return true;
+              },
+              // ยืดให้เต็มจอ
+              // columnWidthMode: ColumnWidthMode.lastColumnFill,
+              // highlightRowOnHover: true,
+              // 2 ตัวด้านล่าง ทำให้สามารถกดเลือกได้แค่เเค่ตัวเดียว
+              allowEditing: true,
+              editingGestureType: EditingGestureType.tap,
+              selectionMode: SelectionMode.single,
+              navigationMode: GridNavigationMode.cell,
+              columnWidthMode: ColumnWidthMode.fitByColumnName,
+              frozenColumnsCount: 1,
+              footerFrozenColumnsCount: 2,
+              source: _employeeDataSource,
+              // ตัวนี้ ถ้าจำนวนไม่ตรงตามที่กำหนดไม่ว่าจะใส่ column name ถูกไหมก็จะ DataGridRowAdapter.cells.length: is not true
+              // ถ้าใส่ไม่ตรงstackedHeaderRows ก้จะเป็นครอปตารางไปเลย
+              // ทดสอบเพิ่มคอรัม
+              // ห้ามใส่เป็น 0
+              columns: getColumns(items.first.length - 1, columnWidths),
+              stackedHeaderRows: <StackedHeaderRow>[
+                // ห้ามใส่เป็น 0
+                StackedHeaderRow(
+                    cells: _getStackedHeaderCell(items.first.length - 1)
+                    // ตัวนี้อาจจะไม่มีผลในการสร้างตารางซ้อน
 
-                // StackedHeaderCell(
-                //     columnNames: ['productId', 'product'],
-                //     child: Container(
-                //         color: const Color(0xFFF1F1F1),
-                //         child: Center(child: Text('Product Details'))))
-                )
-          ]),
+                    // StackedHeaderCell(
+                    //     columnNames: ['productId', 'product'],
+                    //     child: Container(
+                    //         color: const Color(0xFFF1F1F1),
+                    //         child: Center(child: Text('Product Details'))))
+                    )
+              ]),
+        ],
+      ),
     );
   }
 }
@@ -1012,7 +1053,7 @@ class EmployeeDataSource1 extends DataGridSource {
         } else {
           // เริ่มผิดตรงนีัที่ใส่ข้อมูลเดิม
           dataGridSum = dataGridSum + dataGridCall;
-          print("ytytytyyt ${dataGridCall.first.value}");
+          // print("ytytytyyt ${dataGridCall.first.value}");
         }
       }
       dataGridSum = dataGridSum + dataGridSumdata;
@@ -1387,7 +1428,7 @@ class EmployeeDataSource1 extends DataGridSource {
             final futureAllMeTojson = allMeModelToJson(futureAllMe);
 
             FFAppState().itemsduty = futureAllMeTojson;
-            print("itemsduty ${FFAppState().itemsduty}");
+            // print("itemsduty ${FFAppState().itemsduty}");
 
             // ก็อปจากตรงนี้
             // var indexid = futureAllMe.indexWhere((value) => value.id == "${id}");
@@ -1519,12 +1560,11 @@ class EmployeeDataSource1 extends DataGridSource {
 
     return InkWell(
       onTap: () async {
-        
         try {
           final futureAllMe = allMeModelFromJson(FFAppState().itemsduty);
           final dutyStore = futureAllMe[rowColumnIndex.rowIndex]
               .duty![int.parse(column.columnName.toString().split(" ")[1]) - 1];
-          //  print("${FFAppState().itemsduty}");
+
           if (duty == "บ่าย") {
             //  print("กดว่าง");
             dutyStore.noon = 0;

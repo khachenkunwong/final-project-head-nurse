@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:expandable/expandable.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../app_state.dart';
@@ -15,7 +12,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
 import '../workcalendar/workcalendar_widget.dart';
-import 'workschedule_widget.dart';
 
 class WorksheduleHome extends StatefulWidget {
   const WorksheduleHome({Key? key}) : super(key: key);
@@ -27,8 +23,14 @@ class WorksheduleHome extends StatefulWidget {
 class _WorksheduleHomeState extends State<WorksheduleHome> {
   Future<List<Group>>? futureMember;
   bool stataShowManagerGroup = false;
+  // ListTileControlAffinity? controlAffinity = ListTileControlAffinity("10");
   List<List<String>> textlsit1 = [];
   List<String> grouplist = [];
+  Map<int, bool> hideandshow = {};
+  ExpandableController controllerExpandable =
+      ExpandableController(initialExpanded: true);
+  List<ExpandableController> controllerExpandablein = [];
+  // Map<int,ExpandableController> = {0:ExpandableController(initialExpanded: true)}
 
   Future<List<Group>> getMemberModel({required String token}) async {
     try {
@@ -99,21 +101,40 @@ class _WorksheduleHomeState extends State<WorksheduleHome> {
     }
     return [];
   }
+  // @override
+  // // TODO: implement mounted
+  // bool get mounted => super.mounted;
 
   @override
   void initState() {
     // TODO: implement initState
     futureMember = getMemberModel(token: FFAppState().tokenStore);
+    print("check แสดงหุบว่าเปลี่ยนไหมtrue initState");
     super.initState();
   }
 
+  // @override
+  // void didUpdateWidget(covariant WorksheduleHome oldWidget) {
+  //   // TODO: implement didUpdateWidget
+  //   print("check แสดงหุบว่าเปลี่ยนไหมtrue didUpdateWidget ${oldWidget.toStringShort()}");
+
+  //   super.didUpdateWidget(oldWidget);
+  // }
+  // @override
+  // void didChangeDependencies(){
+  //   print("check แสดงหุบว่าเปลี่ยนไหมtrue didUpdateWidget ${didChangeDependencies}");
+  //   super.didChangeDependencies();
+  // }
+
   @override
   Widget build(BuildContext context) {
+    print("check แสดงหุบว่าเปลี่ยนไหมtrue 222");
     return Scaffold(
       body: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
+            // stataShowManagerGroup? Text("fasdfaffdafsfdffdf",style:TextStyle(color: Colors.black,fontSize: 50.0)):SizedBox(),
             FutureBuilder<List<Group>>(
                 future: futureMember,
                 builder: (context, snapshotGroup) {
@@ -135,6 +156,7 @@ class _WorksheduleHomeState extends State<WorksheduleHome> {
                         iconPadding: EdgeInsets.fromLTRB(0, 15, 8, 8),
                         animationDuration: Duration(milliseconds: 250)),
                     child: ExpandablePanel(
+                      controller: controllerExpandable,
                       header: Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -151,6 +173,16 @@ class _WorksheduleHomeState extends State<WorksheduleHome> {
                           //   padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                           //   child: TextButton(
                           //     onPressed: () {
+                          //       setState(() {
+                          //         controllerExpandable.value =
+                          //             !controllerExpandable.value;
+                          //       });
+                          //       print(
+                          //           "controllerExpandable.expanded ${controllerExpandable.expanded} ${controllerExpandable.value}");
+                          //       // setState(() {
+                          //       //   controllerExpandable.expanded;
+                          //       //   //  = ExpandableController(initialExpanded: );
+                          //       // });
                           //       // setState(() {
                           //       //   stataShowManagerGroup =
                           //       //       !stataShowManagerGroup;
@@ -158,7 +190,9 @@ class _WorksheduleHomeState extends State<WorksheduleHome> {
                           //       // print("$stataShowManagerGroup");
                           //     },
                           //     child: Text(
-                          //       stataShowManagerGroup ? "ซ่อน" : "แสดงทั้งหมด",
+                          //       controllerExpandable.value
+                          //           ? "แสดงทั้งหมด"
+                          //           : "ซ่อน",
                           //       style: GoogleFonts.mitr(
                           //         fontSize: 24,
                           //         color:
@@ -228,37 +262,165 @@ class _WorksheduleHomeState extends State<WorksheduleHome> {
                                 itemCount: listviewdataManagerGroup.length,
                                 itemBuilder: ((context, indexGroup) {
                                   final indexnumber1 = indexGroup;
+                                  hideandshow.addAll({indexGroup: false});
+                                  controllerExpandablein.add(
+                                      ExpandableController(
+                                          initialExpanded: true));
+
                                   // print(
                                   //     "listviewdataManagerGroup[indexGroup] ${listviewdataManagerGroup[indexGroup].}");
                                   // FFAppState().itemsdutyList.add("$indexGroup");
-                                  return ExpansionTile(
-                                      initiallyExpanded: stataShowManagerGroup,
-                                      title: const SizedBox(),
-                                      leading: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          "${indexnumber1 + 1} ${listviewdataManagerGroup[indexGroup].nameGroup}",
-                                          style: GoogleFonts.mitr(
-                                            fontSize: 20,
-                                            color: Color(0xFFF727272),
+                                  return ExpandablePanel(
+                                    
+                                    key: Key(
+                                        "${listviewdataManagerGroup[indexGroup].id}"),
+                                    controller:
+                                        controllerExpandablein[indexGroup],
+                                    // controller: controllerExpandable,
+                                    // ExpansionTile(
+                                    //     controlAffinity: controlAffinity,
+                                    //     initiallyExpanded:
+                                    //         hideandshow[indexGroup]!,
+                                    //     maintainState: hideandshow[indexGroup]!,
+                                    //     onExpansionChanged: (value) {
+                                    //       print("valueuu $value");
+                                    //     },
+                                    expanded: Text(""),
+                                    // expanded: Row(
+                                    //   mainAxisSize: MainAxisSize.max,
+                                    //   mainAxisAlignment: MainAxisAlignment.end,
+                                    //   children: [
+                                    //     TextButton(
+                                    //       onPressed: () {
+                                    //         // print(
+                                    //         //     "controlAffinity ${controlAffinity?.index}}");
+                                    //         setState(() {
+                                    //           stataShowManagerGroup =
+                                    //               !stataShowManagerGroup;
+                                    //           hideandshow[indexGroup] =
+                                    //               stataShowManagerGroup;
+                                    //         });
+
+                                    //         print(
+                                    //             " check แสดงหุบว่าเปลี่ยนไหม$stataShowManagerGroup $hideandshow");
+                                    //       },
+                                    //       child: Text(
+                                    //         hideandshow[indexGroup]!
+                                    //             ? "ซ่อน"
+                                    //             : "แสดงทั้งหมด",
+                                    //         style: GoogleFonts.mitr(
+                                    //           fontSize: 24,
+                                    //           color:
+                                    //               FlutterFlowTheme.of(context)
+                                    //                   .primaryBlue,
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    // ),
+                                    header: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            "${indexnumber1 + 1} ชื่อกลุ่ม ${listviewdataManagerGroup[indexGroup].nameGroup}",
+                                            style: GoogleFonts.mitr(
+                                              fontSize: 20,
+                                              color: Color(0xFFF727272),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      children: [
-                                        Container(
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            height: MediaQuery.of(context)
-                                                .size
-                                                .height,
-                                            child: WorkcalendarWidget(
-                                                indexGroup: indexGroup,
-                                                nameGroup:
-                                                    "${snapshotGroup.data?[indexGroup].nameGroup}",
-                                                idGroup:
-                                                    "${snapshotGroup.data?[indexGroup].id}")),
-                                      ]);
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              8, 8, 8, 8),
+                                          child: TextButton(
+                                            onPressed: () {
+                                              for (int i = 0;
+                                                  i <
+                                                      listviewdataManagerGroup
+                                                          .length;
+                                                  i++) {
+                                                if (indexGroup != i) {
+                                                  controllerExpandablein[i]
+                                                      .value = true;
+                                                }
+                                              }
+                                              setState(() {
+                                                controllerExpandablein[
+                                                            indexGroup]
+                                                        .value =
+                                                    !controllerExpandablein[
+                                                            indexGroup]
+                                                        .value;
+                                              });
+
+                                              // print(
+                                              //     "controllerExpandable.expanded ${controllerExpandable.expanded} ${controllerExpandable.value}");
+                                              // setState(() {
+                                              //   controllerExpandable.expanded;
+                                              //   //  = ExpandableController(initialExpanded: );
+                                              // });
+                                              // setState(() {
+                                              //   stataShowManagerGroup =
+                                              //       !stataShowManagerGroup;
+                                              // });
+                                              // print("$stataShowManagerGroup");
+                                            },
+                                            child: Text(
+                                              controllerExpandablein[indexGroup]
+                                                      .value
+                                                  ? "แสดงทั้งหมด"
+                                                  : "ซ่อน",
+                                              style: GoogleFonts.mitr(
+                                                fontSize: 24,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryBlue,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    collapsed: Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        height:
+                                            MediaQuery.of(context).size.height,
+                                        child: WorkcalendarWidget(
+                                            indexGroup: indexGroup,
+                                            nameGroup:
+                                                "${snapshotGroup.data?[indexGroup].nameGroup}",
+                                            idGroup:
+                                                "${snapshotGroup.data?[indexGroup].id}")),
+                                    // collapsed: ExpansionTile(
+                                    //   initiallyExpanded:
+                                    //       controllerExpandablein[indexGroup]
+                                    //           .value,
+                                    //   // onExpansionChanged: (value) {
+                                    //   //   return value;
+                                    //   // },
+                                    //   title: const SizedBox(),
+                                    //   children: [
+                                    //     Container(
+                                    //         width: MediaQuery.of(context)
+                                    //             .size
+                                    //             .width,
+                                    //         height: MediaQuery.of(context)
+                                    //             .size
+                                    //             .height,
+                                    //         child: WorkcalendarWidget(
+                                    //             indexGroup: indexGroup,
+                                    //             nameGroup:
+                                    //                 "${snapshotGroup.data?[indexGroup].nameGroup}",
+                                    //             idGroup:
+                                    //                 "${snapshotGroup.data?[indexGroup].id}")),
+                                    //   ],
+                                    // ),
+                                  );
                                 }));
                           })),
                       expanded: SizedBox(),
