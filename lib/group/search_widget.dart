@@ -89,13 +89,11 @@ class _SearchWidgetState extends State<SearchWidget> {
           width: MediaQuery.of(context).size.width * 0.4,
           child: Builder(
             builder: (context) {
-              
-
               return ListView.builder(
                 itemCount: listSearchEmail.length,
                 itemBuilder: (context, int indexAllDuty) {
-                  
-                  print("widget.nameGroup ${widget.nameGroup} ${listSearchEmail[indexAllDuty].email}");
+                  print(
+                      "widget.nameGroup ${widget.nameGroup} ${listSearchEmail[indexAllDuty].email}");
                   return Padding(
                     padding: EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
                     child: Row(
@@ -148,18 +146,34 @@ class _SearchWidgetState extends State<SearchWidget> {
                                 email: '${listSearchEmail[indexAllDuty].email}',
                                 nameGroup: '${widget.nameGroup}',
                               );
+                              final output = AddMemberCall.getState(
+                                  addMemberOutPut.jsonBody);
+                              print("output ${output["message"]}");
                               if (addMemberOutPut.statusCode == 200) {
-                                await actions.notifica(
-                                  context,
-                                  'ส่งคำเชิญแล้ว',
-                                  color: Colors.green
-                                );
-                                if (mounted) {
-                                  setState(() {
-                                    searchLord["refrest${indexAllDuty}"] = false;
-                                  });
+                                if (output["message"] ==
+                                    "ผู้ใช้งานนี้มีการจัดตารางขึ้นเวรแล้ว") {
+                                      await actions.notifica(
+                                      context, '${output["message"]}',
+                                      );
+                                      if (mounted) {
+                                    setState(() {
+                                      searchLord["refrest${indexAllDuty}"] =
+                                          false;
+                                    });
+                                  }
+                                } else {
+                                  await actions.notifica(
+                                      context, 'ส่งคำเชิญแล้ว',
+                                      color: Colors.green);
+                                  if (mounted) {
+                                    setState(() {
+                                      searchLord["refrest${indexAllDuty}"] =
+                                          false;
+                                    });
+                                  }
+                                  Navigator.pop(context);
                                 }
-                                Navigator.pop(context);
+                                
                               } else {
                                 await actions.notifica(
                                   context,

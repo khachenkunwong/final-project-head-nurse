@@ -215,7 +215,10 @@ class _LoginWidgetState extends State<LoginWidget> {
                                     email: textController1!.text,
                                     password: textController2!.text,
                                   );
-
+                                  FFAppState().myID =
+                                      "${stateLogin?.jsonBody["user"]["_id"]}";
+                                  print(
+                                      "FFAppState().myID ${FFAppState().myID}");
                                   if (((stateLogin?.statusCode ?? 200)) ==
                                       200) {
                                     setState(() {

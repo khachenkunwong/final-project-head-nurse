@@ -79,6 +79,10 @@ class PostLoginCall {
         response,
         r'''$.user.actor''',
       );
+    static dynamic resAll(dynamic response) => getJsonField(
+        response,
+        r'''$.''',
+      );
 }
 
 class GetProfileCall {
@@ -307,7 +311,7 @@ class UpdateSchedule {
     print("กำลังอัพเดต");
 
     final body = '''{"duties":${FFAppState().itemsduty}}''';
-    print("body: ${body}");
+    print("bodyremeber: ${body}");
     return ApiManager.instance.makeApiCall(
       callName: 'updateSchedule',
       apiUrl: '$url/api/schedule/update/schedule',
@@ -320,6 +324,36 @@ class UpdateSchedule {
       //   'duties': duties
       // },
       body: body,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+    );
+  }
+
+  static dynamic resUpdateSchedule(dynamic response) => getJsonField(
+        response,
+        r'''$''',
+      );
+}
+
+class ManageSchedule {
+  static Future<ApiCallResponse> call() {
+    // print("FFAppState().itemsduty22 ${FFAppState().itemsduty}");
+    print("กำลังอัพเดต");
+
+    // final body = '''{"duties":${FFAppState().itemsduty}}''';
+    // print("bodyremeber: ${body}");
+    return ApiManager.instance.makeApiCall(
+      callName: 'updateSchedule',
+      apiUrl: '$url/api/schedule/create',
+      callType: ApiCallType.POST,
+      headers: {
+        'content-type': 'application/json; charset=UTF-8',
+        'Access-Control_Allow_Origin': '*',
+      },
+      // params: {
+      //   'duties': duties
+      // },
+      // body: body,
       bodyType: BodyType.JSON,
       returnBody: true,
     );
@@ -639,4 +673,8 @@ class AddMemberCall {
       returnBody: true,
     );
   }
+  static dynamic getState(dynamic response) => getJsonField(
+        response,
+        r'''$''',
+      );
 }

@@ -1,22 +1,41 @@
-import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:hos_windown/backend/pubilc_.dart';
 import 'flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/internationalization.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:floating_bottom_navigation_bar/floating_bottom_navigation_bar.dart';
 import 'index.dart';
+import 'workschedule/workschedule_home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await FlutterFlowTheme.initialize();
+  final HttpLink httpLink = HttpLink(
+    '$url/graphql',
+  );
+  final AuthLink authLink = AuthLink(
+      getToken: () async {
+        final token = "${FFAppState().tokenStore}";
+        return "$token";
+      },
+    );
+  ValueNotifier<GraphQLClient> client = ValueNotifier(
+    GraphQLClient(
+      link: authLink.concat(httpLink),
+      cache: GraphQLCache(store: InMemoryStore()),
+    ),
+  );
+  var app = GraphQLProvider(
+    client: client,
+    child: MyApp(),
+  );
 
   FFAppState(); // Initialize FFAppState
 
-  runApp(MyApp());
+  runApp(app);
   // doWhenWindowReady(() {
   //   final win = appWindow;
   //   const initialSize = Size(1200, 500);
@@ -91,9 +110,9 @@ class _NavBarPageState extends State<NavBarPage> {
   Widget build(BuildContext context) {
     final tabs = {
       'workschedule': WorkscheduleWidget(),
-      'workcalendar': WorkcalendarWidget(),
+      'workcalendar': WorksheduleHome(),
       'notifications': NotificationsWidget(),
-      'history': HistoryWidget(),
+      // 'history': HistoryWidget(),
       'group': GroupWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPage);
@@ -195,31 +214,31 @@ class _NavBarPageState extends State<NavBarPage> {
                   ],
                 ),
               ),
-              FloatingNavbarItem(
-                customWidget: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      currentIndex == 3 ? Icons.history : Icons.history,
-                      color: currentIndex == 3
-                          ? Color(0xFF00A2FD)
-                          : Color(0xFF727272),
-                      size: currentIndex == 3 ? 26.0 : 23.0,
-                    ),
-                    Text(
-                      'ประวัติ',
-                      overflow: TextOverflow.ellipsis,
-                      style: FlutterFlowTheme.of(context).subtitle1.override(
-                            fontFamily: 'Mitr',
-                            color: currentIndex == 3
-                                ? Color(0xFF00A2FD)
-                                : Color(0xFF727272),
-                            fontSize: currentIndex == 3 ? 26.0 : 23.0,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
+              // FloatingNavbarItem(
+              //   customWidget: Column(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       Icon(
+              //         currentIndex == 3 ? Icons.history : Icons.history,
+              //         color: currentIndex == 3
+              //             ? Color(0xFF00A2FD)
+              //             : Color(0xFF727272),
+              //         size: currentIndex == 3 ? 26.0 : 23.0,
+              //       ),
+              //       Text(
+              //         'ประวัติ',
+              //         overflow: TextOverflow.ellipsis,
+              //         style: FlutterFlowTheme.of(context).subtitle1.override(
+              //               fontFamily: 'Mitr',
+              //               color: currentIndex == 3
+              //                   ? Color(0xFF00A2FD)
+              //                   : Color(0xFF727272),
+              //               fontSize: currentIndex == 3 ? 26.0 : 23.0,
+              //             ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               FloatingNavbarItem(
                 customWidget: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

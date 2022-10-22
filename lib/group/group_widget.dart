@@ -1,4 +1,5 @@
-import 'package:easy_debounce/easy_debounce.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hos_windown/group/creategroup_widget.dart';
 
 import '../backend/api_requests/api_calls.dart';
@@ -10,7 +11,6 @@ import '../flutter_flow/flutter_flow_util.dart';
 import '../custom_code/actions/index.dart' as actions;
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
@@ -37,10 +37,40 @@ class _GroupWidgetState extends State<GroupWidget> {
   List<MemberNotManagerGroup>? listSearchEmail;
   List<Datum>? listvievDutySearch2;
   List<Datum>? listSearchEmail2;
+  List<Group> showGroup = [];
+  TextEditingController? controllerlimit;
+  TextEditingController? controllerlimittest;
+  List<TextEditingController> _controllers = [];
 
   Map<String, bool> deleteLord = {};
+  Map<String, bool> editLimit = {};
   bool lord1 = false;
   var refresh;
+  int stoprerun = 0;
+  // อัพเดตจำนวนสมาชิกสูงสุด
+  updatalimitmember({required String groupId, required String limit}) async {
+    var headers = {
+      'Authorization': '${FFAppState().tokenStore}',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('$url/graphql'));
+    request.body =
+        '''{"query":"mutation UpdateGroup(\$input: UpdateGroupInput!) {\\r\\n  updateGroup(input: \$input) {\\r\\n    _id\\r\\n    limit\\r\\n  }\\r\\n}","variables":{"input":{"_id":"$groupId","limit":$limit}}}''';
+    print(request.body);
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+      await notifica(context, "อัพเดตจำนวนสมาชิกสูงสุดสำเร็จ",
+          color: Colors.green);
+    } else {
+      print(response.reasonPhrase);
+      await notifica(context, "อัพเดตจำนวนสมาชิกสูงสุดไม่สำเร็จ");
+    }
+  }
+
   // แสดงข้อมูลที่ยังไม่ได้จัดกลุ่ม
   Future<List<MemberNotManagerGroup>> getManagerNotGroupModel(
       {required String token}) async {
@@ -104,8 +134,8 @@ class _GroupWidgetState extends State<GroupWidget> {
           "x-access-token": "$token"
         },
       );
-      print("res.body1 ${res.statusCode}");
-      print("res.body1 ${res.body}");
+      print("res.body1 getMemberModel ${res.statusCode}");
+      print("res.body1 getMemberModel ${res.body}");
 
       // if (checkUnauthorized) {
       //   await actions.notifica(
@@ -117,8 +147,8 @@ class _GroupWidgetState extends State<GroupWidget> {
       if (res.statusCode == 200) {
         final bodyMember =
             convert.json.decode(res.body) as Map<String, dynamic>;
-        final _futureMember =
-            MemberCall.fromJson(bodyMember as Map<String, dynamic>);
+        final _futureMember = MemberCall.fromJson(bodyMember);
+        // print("_futureMember ${_futureMember.group!.first.limit}");
         final futureMember = _futureMember.group as List<Group>;
         for (var indexGroupNumber = 0;
             indexGroupNumber < futureMember.length;
@@ -127,8 +157,12 @@ class _GroupWidgetState extends State<GroupWidget> {
               indexMemberNumber < futureMember[indexGroupNumber].member!.length;
               indexMemberNumber++) {
             deleteLord.addEntries({
-              "refrest ${indexGroupNumber} ${indexMemberNumber}": false
+              "refrest $indexGroupNumber $indexMemberNumber": false
             }.entries);
+          }
+          if (futureMember[indexGroupNumber].deleted == false) {
+            showGroup.add(futureMember[indexGroupNumber]);
+            // showGroup[indexGroupNumber] = ;
           }
         }
         return futureMember;
@@ -174,9 +208,9 @@ class _GroupWidgetState extends State<GroupWidget> {
       if (res.statusCode == 200) {
         final bodyAllDuty =
             convert.json.decode(res.body) as Map<String, dynamic>;
-        final _futureAllDuty =
-            AllMemberwithout.fromJson(bodyAllDuty as Map<String, dynamic>);
+        final _futureAllDuty = AllMemberwithout.fromJson(bodyAllDuty);
         final futureAllDuty = _futureAllDuty.data as List<Datum>;
+        print("armmsttt");
         if (listvievDutySearch2?.length == 0 || listvievDutySearch2 == null) {
           setState(() {
             listvievDutySearch2 = futureAllDuty;
@@ -227,7 +261,7 @@ class _GroupWidgetState extends State<GroupWidget> {
 
       if (res.statusCode == 200) {
         print("yyyyy ${res.body}}");
-        await actions.notifica(context, "ลบสมาชิกสำเร็จ",color: Colors.green);
+        await actions.notifica(context, "ลบสมาชิกสำเร็จ", color: Colors.green);
       } else {
         print("yyyyy ${res.body}}");
         await actions.notifica(context, "ลบสมาชิกไม่สำเร็จ");
@@ -240,12 +274,47 @@ class _GroupWidgetState extends State<GroupWidget> {
     return [];
   }
 
+  Future<List<Datum>> deleteGroup({required String groupId}) async {
+    try {
+      var headers = {
+        'Authorization': '${FFAppState().tokenStore}',
+        'Content-Type': 'application/json'
+      };
+      var request = http.Request('POST', Uri.parse('$url/graphql'));
+      request.body =
+          '''{"query":"mutation DeleteGroup(\$input: DeleteGroupInput!) {\\r\\n  deleteGroup(input: \$input)\\r\\n}","variables":{"input":{"groupId":"$groupId"}}}''';
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        print(await response.stream.bytesToString());
+        await actions.notifica(context, "ลบกลุ่มสำเร็จ", color: Colors.green);
+      } else {
+        print(response.reasonPhrase);
+        await actions.notifica(context, "ลบกลุ่มไม่สำเร็จ");
+      }
+
+      //
+
+      return [];
+    } catch (error) {
+      print(error);
+    }
+    return [];
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      futureMember = getMemberModel(token: FFAppState().tokenStore);
+    });
     // อันนี้ลบออกเมื่อใช้เสร็จ
     refresh = false;
+
     // FFAppState().tokenStore =
     //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjp7InN1YiI6IjYyY2JjNGU1NDIwYzllMWFmZjJkN2I4MCIsInYiOjF9LCJpYXQiOjE2NTkxNjQwNDEsImV4cCI6MTY1OTc2ODg0MX0.nCsqVj5aA5znhFnguY89aTF2oZzaya-t4miI4waLeu8";
     // //
@@ -253,12 +322,11 @@ class _GroupWidgetState extends State<GroupWidget> {
 
   @override
   Widget build(BuildContext context) {
-    futureMember = getMemberModel(token: FFAppState().tokenStore);
     futureAllDuty = getAllMemberWhithOut(token: FFAppState().tokenStore);
     getManagerNotGroupModel(token: FFAppState().tokenStore);
     // futureAllDuty = getAllMemberWhithOut(token: FFAppState().tokenStore);
     print("scaffold");
-    print("${listvievDutySearch2}");
+    print("$listvievDutySearch2");
     if (listvievDutySearch2?.length == 0 || listvievDutySearch2 == null) {
       setState(() {
         listSearchEmail2 = listvievDutySearch2;
@@ -325,7 +393,18 @@ class _GroupWidgetState extends State<GroupWidget> {
                           ),
                         );
                       }
-                      final GetGroupMyMemberResponse = snapshotGroup.data!;
+                      // final GetGroupMyMemberResponse = snapshotGroup.data!;
+                      // if (snapshotGroup.data.isEmpty)
+                      print("snapshotGroup.data.isEmpty ${snapshotGroup.data?.length}");
+                      if (snapshotGroup.data?.isEmpty == null ||
+                          snapshotGroup.data?.length == 0) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Center(child: Text("ยังไม่มีสร้างกลุ่ม",style: GoogleFonts.mitr(fontSize: 24,color: Colors.black),)),
+                          ],
+                        );
+                      }
                       return Builder(
                         builder: (context) {
                           return RefreshIndicator(
@@ -334,16 +413,30 @@ class _GroupWidgetState extends State<GroupWidget> {
                               setState(() => _apiRequestCompleter = null);
                               // await waitForApiRequestCompleter(minWait: 2.0);
                             },
-                            child: ListView.separated(
+                            child: GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 700.0,
+                                      childAspectRatio: 3 / 3,
+                                      crossAxisSpacing: 1,
+                                      mainAxisSpacing: 1),
                               padding: EdgeInsets.zero,
                               shrinkWrap: true,
                               scrollDirection: Axis.vertical,
-                              itemCount: GetGroupMyMemberResponse.length,
+                              itemCount: showGroup.length,
                               itemBuilder: (context, indexGroup) {
                                 print(
-                                    "GetGroupMyMemberResponse.length ${GetGroupMyMemberResponse.length}");
-                                final ItemGroup =
-                                    GetGroupMyMemberResponse[indexGroup];
+                                    "GetGroupMyMemberResponse.length ${showGroup[indexGroup].deleted}");
+                                final ItemGroup = showGroup[indexGroup];
+
+                                editLimit.addAll({"$indexGroup": false});
+                                // if (stoprerun <= showGroup.length) {
+
+                                //   stoprerun += 1;
+                                _controllers.add(TextEditingController(
+                                    text: "${ItemGroup.limit}"));
+                                // }
+
                                 return Align(
                                   alignment: AlignmentDirectional(0, -1),
                                   child: Material(
@@ -370,12 +463,56 @@ class _GroupWidgetState extends State<GroupWidget> {
                                               Padding(
                                                 padding: EdgeInsetsDirectional
                                                     .fromSTEB(0, 42, 0, 0),
-                                                child: Text(
-                                                  'ชื่อกลุ่ม ${ItemGroup.nameGroup}',
-                                                  textAlign: TextAlign.center,
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .title2,
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text('ลบกลุ่ม',
+                                                        style: GoogleFonts.mitr(
+                                                            fontSize: 16,
+                                                            color:
+                                                                Colors.white)),
+                                                    Text(
+                                                      'ชื่อกลุ่ม ${ItemGroup.nameGroup}',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .title2,
+                                                    ),
+                                                    InkWell(
+                                                      onTap: () async {
+                                                        // ลบกลุ่ม
+                                                        await deleteGroup(
+                                                            groupId:
+                                                                ItemGroup.id!);
+                                                      },
+                                                      child:
+                                                          // Icon(
+                                                          //   Icons.folder_delete,
+                                                          //   color: Colors.red,
+                                                          //   size: 30.0,
+                                                          // ),
+                                                          Text(
+                                                        'ลบกลุ่ม',
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyText1
+                                                                .override(
+                                                                  fontFamily:
+                                                                      'Mitr',
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryRed,
+                                                                ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                               Padding(
@@ -525,11 +662,103 @@ class _GroupWidgetState extends State<GroupWidget> {
                                               Padding(
                                                 padding: EdgeInsetsDirectional
                                                     .fromSTEB(0, 18, 0, 0),
-                                                child: Text(
-                                                  'สมาชิก',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .title2,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      'สมาชิก',
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .title2,
+                                                    ),
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        InkWell(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              editLimit[
+                                                                      "$indexGroup"] =
+                                                                  true;
+                                                            });
+                                                            print(
+                                                                "editLimit $editLimit  ${editLimit["$indexGroup"]}");
+                                                          },
+                                                          child: Text(
+                                                            '${ItemGroup.member!.length - 1}/',
+                                                            style: GoogleFonts
+                                                                .getFont(
+                                                              'Mitr',
+                                                              color:
+                                                                  Colors.black,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                              fontSize: 26,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          width: 50.0,
+                                                          child: TextFormField(
+                                                              controller:
+                                                                  _controllers[
+                                                                      indexGroup],
+                                                              obscureText:
+                                                                  false,
+                                                              style: GoogleFonts
+                                                                  .mitr(
+                                                                      fontSize:
+                                                                          20,
+                                                                      color: Colors
+                                                                          .black),
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                hintText:
+                                                                    "จำนวนสมาชิก",
+                                                                hintStyle: GoogleFonts.mitr(
+                                                                    fontSize:
+                                                                        20,
+                                                                    color: Colors
+                                                                        .grey),
+                                                              )),
+                                                        ),
+                                                        IconButton(
+                                                            onPressed: () {
+                                                              // setState(() {
+                                                              //   controllerlimit
+                                                              //       .text = "";
+                                                              // });
+                                                            },
+                                                            icon: Icon(
+                                                                Icons.close)),
+                                                        IconButton(
+                                                            onPressed: () {
+                                                              if (_controllers[
+                                                                              indexGroup]
+                                                                          .text
+                                                                          .isNotEmpty !=
+                                                                      null &&
+                                                                  int.parse(
+                                                                          "${_controllers[indexGroup].text.length}") >
+                                                                      0) ;
+                                                              print(
+                                                                  "999  ${_controllers[indexGroup].text}");
+                                                              updatalimitmember(
+                                                                  groupId:
+                                                                      "${ItemGroup.id}",
+                                                                  limit:
+                                                                      "${_controllers[indexGroup].text}");
+                                                            },
+                                                            icon: Icon(
+                                                                Icons.save))
+                                                      ],
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                               Padding(
@@ -649,11 +878,11 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                                 0,
                                                                                 20,
                                                                                 0),
-                                                                            child: deleteLord["refrest ${indexGroup} ${indexMember}"] == false
+                                                                            child: deleteLord["refrest $indexGroup $indexMember"] == false
                                                                                 ? InkWell(
                                                                                     onTap: () async {
                                                                                       setState(() {
-                                                                                        deleteLord["refrest ${indexGroup} ${indexMember}"] = true;
+                                                                                        deleteLord["refrest $indexGroup $indexMember"] = true;
                                                                                       });
                                                                                       // print("yyyy ${ItemGroup.id} - ${itemMember.email}");
                                                                                       // getDeleteMember = await DeleteMemberInGroupCall.call(groupId: "${ItemGroup.id}", email: "${itemMember.email}", token: FFAppState().tokenStore);
@@ -663,18 +892,22 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                                       print("ทำงานเสร็จแล้ว");
                                                                                       if (mounted) {
                                                                                         setState(() {
-                                                                                          deleteLord["refrest ${indexGroup} ${indexMember}"] = false;
+                                                                                          deleteLord["refrest $indexGroup $indexMember"] = false;
                                                                                         });
                                                                                       }
                                                                                     },
-                                                                                    child: Text(
-                                                                                      'ลบ',
-                                                                                      style: FlutterFlowTheme.of(context).bodyText1.override(
-                                                                                            fontFamily: 'Mitr',
-                                                                                            color: FlutterFlowTheme.of(context).primaryRed,
-                                                                                          ),
-                                                                                    ),
-                                                                                  )
+                                                                                    child: Icon(
+                                                                                      Icons.delete,
+                                                                                      color: Colors.red,
+                                                                                    )
+                                                                                    // Text(
+                                                                                    //   'ลบ',
+                                                                                    //   style: FlutterFlowTheme.of(context).bodyText1.override(
+                                                                                    //         fontFamily: 'Mitr',
+                                                                                    //         color: FlutterFlowTheme.of(context).primaryRed,
+                                                                                    //       ),
+                                                                                    // ),
+                                                                                    )
                                                                                 : CircularProgressIndicator(
                                                                                     color: Colors.red,
                                                                                   ),
@@ -696,13 +929,13 @@ class _GroupWidgetState extends State<GroupWidget> {
                                   ),
                                 );
                               },
-                              separatorBuilder:
-                                  (BuildContext context, int index) {
-                                return SizedBox(
-                                  width: 5.0,
-                                  height: 5.0,
-                                );
-                              },
+                              // separatorBuilder:
+                              //     (BuildContext context, int index) {
+                              //   return SizedBox(
+                              //     width: 5.0,
+                              //     height: 5.0,
+                              //   );
+                              // },
                             ),
                           );
                         },

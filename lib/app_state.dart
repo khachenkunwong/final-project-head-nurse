@@ -18,7 +18,10 @@ class FFAppState {
     _tokenStore = prefs.getString('ff_tokenStore') ?? _tokenStore;
     _namegroup = prefs.getString('ff_namegroup') ?? _namegroup;
     _itemsduty = prefs.getString('ff_itemsduty') ?? _itemsduty;
+    _myID = prefs.getString('ff_myID') ?? _myID;
     _itemsdutyupdata = prefs.getStringList('ff_itemsdutyupdata') ?? _itemsdutyupdata;
+    _itemscount = prefs.getStringList('ff_itemscount') ?? _itemscount;
+    _itemsdutyList = prefs.getStringList('ff_itemsdutyList') ?? _itemsdutyList;
   }
 
   late SharedPreferences prefs;
@@ -43,6 +46,12 @@ class FFAppState {
     _namegroup = _value;
     prefs.setString('ff_namegroup', _value);
   }
+  String _myID = '';
+  String get myID => _myID;
+  set myID(String _value) {
+    _myID = _value;
+    prefs.setString('ff_myID', _value);
+  }
 
   String _itemsduty = '';
   String get itemsduty => _itemsduty;
@@ -57,6 +66,20 @@ class FFAppState {
   set itemsdutyupdata(List<String> _value) {
     _itemsdutyupdata = _value;
     prefs.setStringList('ff_itemsdutyupdata', _value);
+  }
+
+  List<String> _itemscount = [];
+  List<String> get itemscount => _itemscount;
+  set itemscount(List<String> _value) {
+    _itemscount = _value;
+    prefs.setStringList('ff_itemscount', _value);
+  }
+
+  List<String> _itemsdutyList = [];
+  List<String> get itemsdutyList => _itemsdutyList;
+  set itemsdutyList(List<String> _value) {
+    _itemsdutyList = _value;
+    prefs.setStringList('ff_itemsdutyList', _value);
   }
 
   void addToItemsduty(String _value) {

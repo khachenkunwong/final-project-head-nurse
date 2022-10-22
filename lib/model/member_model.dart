@@ -29,24 +29,30 @@ class Group {
         this.id,
         this.location,
         this.nameGroup,
+        this.limit,
         this.leader,
         this.member,
+        this.deleted,
         this.v,
     });
 
     String? id;
     String? location;
     String? nameGroup;
+    int? limit;
     List<Leader>? leader;
     List<Leader>? member;
+    bool? deleted;
     int? v;
 
     factory Group.fromJson(Map<String, dynamic> json) => Group(
         id: json["_id"] == null ? null : json["_id"],
         location: json["location"] == null ? null : json["location"],
         nameGroup: json["name_group"] == null ? null : json["name_group"],
+        limit: json["limit"] == null ? null : json["limit"],
         leader: json["_leader"] == null ? null : List<Leader>.from(json["_leader"].map((x) => Leader.fromJson(x))),
         member: json["_member"] == null ? null : List<Leader>.from(json["_member"].map((x) => Leader.fromJson(x))),
+        deleted: json["deleted"] == null ? null : json["deleted"],
         v: json["__v"] == null ? null : json["__v"],
     );
 
@@ -54,8 +60,10 @@ class Group {
         "_id": id == null ? null : id,
         "location": location == null ? null : location,
         "name_group": nameGroup == null ? null : nameGroup,
+        "limit": limit == null ? null : limit,
         "_leader": leader == null ? null : List<dynamic>.from(leader!.map((x) => x.toJson())),
         "_member": member == null ? null : List<dynamic>.from(member!.map((x) => x.toJson())),
+        "deleted": deleted == null ? null : deleted,
         "__v": v == null ? null : v,
     };
 }

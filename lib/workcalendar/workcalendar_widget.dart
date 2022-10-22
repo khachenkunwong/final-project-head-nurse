@@ -17,8 +17,18 @@ import '../flutter_flow/flutter_flow_theme.dart';
 import '../model/all_me_model.dart';
 import 'package:flutter/services.dart';
 
+import '../model/saveduty_model.dart';
+
 class WorkcalendarWidget extends StatefulWidget {
-  const WorkcalendarWidget({Key? key}) : super(key: key);
+  final String nameGroup;
+  final String idGroup;
+  final int indexGroup;
+  WorkcalendarWidget(
+      {Key? key,
+      required this.nameGroup,
+      required this.idGroup,
+      required this.indexGroup})
+      : super(key: key);
 
   @override
   _WorkcalendarWidgetState createState() => _WorkcalendarWidgetState();
@@ -31,8 +41,10 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
   int? a;
   List day = [1, 2];
   var numberGridColumn = 0;
+  // เอาไว้เก็บ index ค้นหาเมื่อปิดหน้าจัดตารางเวร
+  int indexseachremove = 0;
   // จำนวนวันกำหนดแล้วค่าจะเปลี่ยน
-  int numberItem = 30;
+  int numberItem = 31;
   int numberObject = 0;
   List getMeAll = [];
   Future<List<AllMeModel>>? futureAllMe;
@@ -42,13 +54,14 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
   bool loadgroupmange = false;
   bool loadclear = false;
   late ApiCallResponse updataschedule;
+  var sum;
   late Map<String, double> columnWidths = {
     'name': double.nan,
-    "average": double.nan,
+    // "average": double.nan,
     "median": double.nan,
     "popular_base": double.nan
   };
-  late Future<String> getMall;
+  // late Future<String> getMall;
   @override
   void dispose() {
     // TODO: implement dispose
@@ -58,6 +71,14 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
     items.clear();
     tar1.clear();
     columnWidths.clear();
+    indexseachremove = FFAppState()
+        .itemsdutyList
+        .indexWhere((element) => element.contains("${widget.nameGroup}"));
+    FFAppState().itemsdutyList.removeAt(indexseachremove);
+    // print(
+    //     "FFAppState().itemsdutyList.removeAt len ${indexseachremove}${FFAppState().itemsdutyList.length}");
+    // print(
+    //     "FFAppState().itemsdutyList.removeAt  ${FFAppState().itemsdutyList}");
     super.dispose();
   }
 
@@ -67,23 +88,51 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
     }
     try {
       final res = await http.get(
-        Uri.parse("$url/api/group/schedule/me/all/AAA-บ้านม่วง"),
+        Uri.parse("$url/api/group/schedule/me/all/${widget.nameGroup}"),
         headers: {
           "Accept": "application/json",
           "Access-Control_Allow_Origin": "*",
           "x-access-token": "${FFAppState().tokenStore}"
         },
       );
-      // print("res type ${res.body.runtimeType}");
-      // print("res ${res.body}");
+      print("res type ${res.body.runtimeType}");
+      print("res group${res.body}");
 
       // เอา string ไปแล้ว decode เป็น json เอาไปเก็บในตัวแปร
       // final resBody = convert.jsonDecode(res.body);
 
       // print("res type ${resBody.runtimeType}");
       // print("resBody ${resBody["_id"]}");
-      print("res.body ${res.body}");
+      print("res.body save itmesduty ${res.body}");
       if (res.statusCode == 200) {
+        // String yyuyy = ""
+        final beforetojson =
+            convert.jsonDecode('{"${widget.nameGroup}":${res.body}}');
+        print(" body33 ${beforetojson["new3"]}");
+        final aftertojson = convert.jsonEncode(beforetojson);
+        print("bodytojson $aftertojson");
+        // bool checkrerun =
+        //     FFAppState().itemsdutyList.contains("${widget.nameGroup}");
+        // print("checkrerun $checkrerun");
+        FFAppState().itemsdutyList.add(aftertojson);
+        // print("ทำงานได้");
+        // FFAppState().itemsdutyList.add(aftertojson);
+
+        // String yyy = """{"duty":"tttttttttttt"}""";
+        // Saveduty before_save =
+        //     Saveduty(nameGroup: "${widget.nameGroup}", aaa: "${res.body}");
+        // print("before save${before_save.toJson()}");
+        // // ["${widget.nameGroup}"]
+        // FFAppState().itemsdutyList[widget.indexGroup] =
+        //     "${before_save.toJson()}";
+        // print("FFAppState().itemsdutyList ${FFAppState().itemsdutyList}");
+        // var testttt = savedutyFromJson.call("${widget.nameGroup}");
+        // print("testttt $testttt");
+        // final body33 =
+        //     convert.jsonDecode(FFAppState().itemsdutyList[widget.indexGroup]);
+        // json.decode(FFAppState().itemsdutyList[widget.indexGroup]);
+        // print("body to json ${FFAppState().itemsdutyList[widget.indexGroup]}}");
+
         FFAppState().itemsduty = res.body;
         await notifica(context, "เลิกทำที่แก้แล้ว", color: Colors.green);
         return res.body;
@@ -92,7 +141,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
       }
     } catch (e) {
       print("error $e");
-      getMeallpubileinClass(token: FFAppState().tokenStore);
+      // getMeallpubileinClass(token: FFAppState().tokenStore);
     }
     return "";
   }
@@ -125,18 +174,22 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
     // final body = convert.json.decode(res.body) as List<dynamic>;
     // print("body: ** ${body.length}");
 
-    final futureAllMe = allMeModelFromJson(FFAppState().itemsduty as String);
+    final futureAllMe = allMeModelFromJson(FFAppState().itemsduty);
 
     List<Employee1> ter = [];
+    List<int> dayCount = [];
+    // print("ffutureAllMe ${futureAllMe.first.duty!.last.month}");
 
     for (int dutyNamenumber = 0;
         dutyNamenumber < futureAllMe.length;
         dutyNamenumber++) {
+      FFAppState().itemscount.add("0");
       if (futureAllMe[dutyNamenumber].duty!.length > 0) {
+        print(
+            "futureAllMe ${futureAllMe[dutyNamenumber].user!.fristName} ${futureAllMe[dutyNamenumber].user!.lastName}");
         for (int dutyDaynumber = 0;
             dutyDaynumber < futureAllMe[dutyNamenumber].duty!.length;
             dutyDaynumber++) {
-          // print("${futureAllMe[dutyNamenumber].duty![dutyDaynumber].id}");
           ter.add(
             Employee1(
                 "${futureAllMe[dutyNamenumber].duty![dutyDaynumber].id}",
@@ -159,7 +212,12 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                 "${futureAllMe[dutyNamenumber].duty![dutyDaynumber].group}",
                 "${futureAllMe[dutyNamenumber].duty![dutyDaynumber].count}"),
           );
+          print(
+              "futureAllMe count ${futureAllMe[dutyNamenumber].duty![dutyDaynumber].count}");
+          // ใช้ไปสรุปจำนวนชั่วโมง
+          dayCount.add(futureAllMe[dutyNamenumber].duty![dutyDaynumber].count!);
         }
+        print("futureAllMe dayCount $dayCount");
       } else {
         try {
           for (int dutyDaynumber = 0;
@@ -183,16 +241,22 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
             );
           }
         } catch (error) {
-          print("ข้ามเนื่องจาก สมาชิกในกลุ่มคนแรกหรือคนที่ 2 error ${error}");
+          print("ข้ามเนื่องจาก สมาชิกในกลุ่มคนแรกหรือคนที่ 2 error $error");
         }
       }
 
-      tar1.add(ter as List<Employee1>);
-
+      tar1.add(ter);
+      sum = dayCount.reduce((a, b) => a + b);
+      print("sum $sum");
+      FFAppState().itemscount[dutyNamenumber] = "$sum";
+      dayCount = [];
       ter = [];
       // Employee1("khachen kunwong", "ช", "ว่าง", "ว่าง");
 
     }
+    print("FFAppState().itemscount");
+
+    print("FFAppState().itemscount ${FFAppState().itemscount}");
     // await notifica(context, "โหลดตารางแล้ว", color: Colors.green);
     // if (mounted) {
     setState(() {
@@ -214,6 +278,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
 
     // print("getMeAll ${getMeAll.first["_id"]}getMeAll");
     // final futureMeAll = _futureMeAll.duty as List<DutyAllMeModel>;
+    print("items222 $items");
 
     return futureAllMe;
   }
@@ -239,16 +304,16 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
     ];
 
     columnsDutyNameSum = <GridColumn>[
-      GridColumn(
-          columnName: 'average',
-          width: columnWidths['average'],
-          label: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              alignment: Alignment.center,
-              child: Text(
-                'ค่าเฉลี่ย',
-                overflow: TextOverflow.ellipsis,
-              ))),
+      // GridColumn(
+      //     columnName: 'average',
+      //     width: columnWidths['average'],
+      //     label: Container(
+      //         padding: EdgeInsets.symmetric(horizontal: 16.0),
+      //         alignment: Alignment.center,
+      //         child: Text(
+      //           'ค่าเฉลี่ย',
+      //           overflow: TextOverflow.ellipsis,
+      //         ))),
       GridColumn(
           columnName: 'median',
           width: columnWidths['median'],
@@ -256,7 +321,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               alignment: Alignment.center,
               child: Text(
-                'มัธยฐาน',
+                'จำนวนเวร',
                 overflow: TextOverflow.ellipsis,
               ))),
       GridColumn(
@@ -266,7 +331,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               alignment: Alignment.center,
               child: Text(
-                'ฐานนิยม',
+                'ชั่วโมง',
                 overflow: TextOverflow.ellipsis,
               ))),
     ];
@@ -322,10 +387,14 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
 
     stackedHeaderSum = <StackedHeaderCell>[
       StackedHeaderCell(
-          columnNames: ['average', 'median', 'popular_base'],
-          child: Container(
-              color: const Color(0xFFF1F1F1),
-              child: Center(child: Text('สรุป')))),
+        columnNames: ['median', 'popular_base'],
+        child: Container(
+          color: const Color(0xFFF1F1F1),
+          child: Center(
+            child: Text('สรุป'),
+          ),
+        ),
+      ),
     ];
 
     for (int i = 1; i <= number; i++) {
@@ -354,53 +423,10 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
   //                   child: Center(child: Text('วันที่ $i')))),
   EmployeeDataSource1? currentPage;
 
-  Future<String> getMeallpubileinClass2({required String token}) async {
-    if (mounted) {
-      setState(() {});
-    }
-    try {
-      final res = await http.get(
-        Uri.parse("$url/api/group/schedule/me/all/AAA"),
-        headers: {
-          "Accept": "application/json",
-          "Access-Control_Allow_Origin": "*",
-          "x-access-token": "$token"
-        },
-      );
-      // print("res type ${res.body.runtimeType}");
-      // print("res ${res.body}");
-
-      // เอา string ไปแล้ว decode เป็น json เอาไปเก็บในตัวแปร
-      // final resBody = convert.jsonDecode(res.body);
-
-      // print("res type ${resBody.runtimeType}");
-      // print("resBody ${resBody["_id"]}");
-      print("res.body ${res.body}");
-      if (res.statusCode == 200) {
-        await notifica(context, "โหลดตารางสำเร็จ", color: Colors.green);
-        return res.body;
-      } else {
-        await notifica(context, "โหลดตารางไม่สำเร็จ");
-        // setState(() {});
-      }
-    } catch (e) {
-      print("error $e");
-      getMeallpubileinClass(token: FFAppState().tokenStore);
-    }
-    return "";
-  }
-
   @override
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      getMall = getMeallpubileinClass2(token: FFAppState().tokenStore);
-      await getMall.then((getMeAllThen) {
-        print("ค่าวางไหม ${getMeAllThen.isEmpty}");
-
-        print("บันทึกข้อมูล");
-        FFAppState().itemsduty = getMeAllThen;
-      });
-
+      await resetduty();
       await getMeallpubileinClass(token: FFAppState().tokenStore);
     });
     super.initState();
@@ -450,10 +476,12 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
   Widget build(BuildContext context) {
     //  print('รี หน้าใหม่');
     // items = getEmployeeData();
+    // print("items.isNotEmpty ${items.first.first.day}");
     try {
       if (items.isNotEmpty || items.length > 0) {
         // print("tar1$tar1");
         // print("item len ${items.first.length}");
+        print("items.first.length1 ${items.first.length}");
 
         _employeeDataSource =
             EmployeeDataSource1(items, items.first.length - 1);
@@ -472,6 +500,53 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  //  FloatingActionButton.extended(
+                  //   onPressed: () async {
+                  //     // ยังกดไม่ได้จนกว่าจะแก้เอาเวรว่างออก
+                  //     setState(() {
+                  //       loadSave = true;
+                  //     });
+                  //     updataschedule = await ManageSchedule.call();
+                  //     final gg = await ManageSchedule.resUpdateSchedule(
+                  //         updataschedule.jsonBody);
+                  //     print("ooo" + gg.toString());
+                  //     print("5515${updataschedule.jsonBody}");
+                  //     if (updataschedule.statusCode == 200) {
+                  //       if (mounted) {
+                  //         setState(() {
+                  //           loadSave = false;
+                  //         });
+                  //       }
+                  //       await actions.notifica(context, 'สำเร็จ',
+                  //           color: Colors.green);
+                  //     } else {
+                  //       if (mounted) {
+                  //         setState(() {
+                  //           loadSave = false;
+                  //         });
+                  //       }
+                  //       await actions.notifica(
+                  //         context,
+                  //         'ไม่สำเร็จ',
+                  //       );
+                  //     }
+                  //     // FFAppState().itemsduty = "";
+                  //   },
+                  //   backgroundColor: FlutterFlowTheme.of(context).primaryColor,
+                  //   elevation: 10,
+                  //   label: loadSave == true
+                  //       ? SizedBox(
+                  //           width: 20.0,
+                  //           height: 20.0,
+                  //           child: CircularProgressIndicator(
+                  //               backgroundColor: Colors.white))
+                  //       : Text("จัด"),
+                  // ),
+
+                  // SizedBox(
+                  //   width: 10.0,
+                  // ),
+
                   FloatingActionButton.extended(
                     onPressed: () async {
                       // ยังกดไม่ได้จนกว่าจะแก้เอาเวรว่างออก
@@ -479,19 +554,18 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                         loadSave = true;
                       });
                       updataschedule = await UpdateSchedule.call();
-                      final gg = UpdateSchedule.resUpdateSchedule(
+                      final gg = await UpdateSchedule.resUpdateSchedule(
                           updataschedule.jsonBody);
                       print("ooo" + gg.toString());
+                      print("5515${updataschedule.jsonBody}");
                       if (updataschedule.statusCode == 200) {
                         if (mounted) {
                           setState(() {
                             loadSave = false;
                           });
                         }
-                        await actions.notifica(
-                          context,
-                          'บันทึกแล้ว',color: Colors.green
-                        );
+                        await actions.notifica(context, 'บันทึกแล้ว',
+                            color: Colors.green);
                       } else {
                         if (mounted) {
                           setState(() {
@@ -503,6 +577,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                           'บันทึกไม่สำเร็จ',
                         );
                       }
+                      // FFAppState().itemsduty = "";
                     },
                     backgroundColor: FlutterFlowTheme.of(context).primaryColor,
                     elevation: 10,
@@ -514,6 +589,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                                 backgroundColor: Colors.white))
                         : Text("บันทึก"),
                   ),
+
                   SizedBox(
                     width: 10.0,
                   ),
@@ -551,8 +627,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                       final getStoteData =
                           allMeModelFromJson(FFAppState().itemsduty);
 
-                      await AutoDutyCall.call(
-                          groupID: "${getStoteData.first.group}");
+                      await AutoDutyCall.call(groupID: "${widget.idGroup}");
 
                       print("จัดกลุ่มแล้ว");
                       if (mounted) {
@@ -566,7 +641,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                     backgroundColor: FlutterFlowTheme.of(context).primaryGreen,
                     elevation: 10,
                     label: loadgroupmange == false
-                        ? Text("จัดเวรของกลุ่มนี้")
+                        ? Text("จัดเวรของกลุ่มนี้ 2222")
                         : CircularProgressIndicator(),
                   ),
                   FloatingActionButton.extended(
@@ -651,7 +726,8 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                     }
                     await actions.notifica(
                       context,
-                      'บันทึกแล้ว',color: Colors.green,
+                      'บันทึกแล้ว',
+                      color: Colors.green,
                     );
                   } else {
                     if (mounted) {
@@ -678,30 +754,31 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
               SizedBox(
                 width: 10.0,
               ),
-              FloatingActionButton.extended(
-                onPressed: () {
-                  //  print('FloatingActionButton pressed ...');
-                  setState(() {
-                    loadclear = true;
-                  });
-                  resetduty();
-                  if (mounted) {
-                    setState(() {
-                      loadclear = false;
-                    });
-                  }
+              // FloatingActionButton.extended(
+              //   onPressed: () {
+              //     //  print('FloatingActionButton pressed ...');
+              //     setState(() {
+              //       loadclear = true;
+              //     });
+              //     resetduty();
+              //     if (mounted) {
+              //       setState(() {
+              //         loadclear = false;
+              //       });
+              //     }
 
-                  print("ล้างแล้ว");
-                },
-                backgroundColor: FlutterFlowTheme.of(context).primaryRed,
-                elevation: 10,
-                label: loadclear == false
-                    ? Text("ล้าง")
-                    : CircularProgressIndicator(backgroundColor: Colors.white),
-              ),
-              SizedBox(
-                width: 10.0,
-              ),
+              //     print("ล้างแล้ว");
+              //   },
+              //   backgroundColor: FlutterFlowTheme.of(context).primaryRed,
+              //   elevation: 10,
+              //   label: loadclear == false
+              //       ? Text("ล้าง")
+              //       : CircularProgressIndicator(backgroundColor: Colors.white),
+              // ),
+              // SizedBox(
+              //   width: 10.0,
+              // ),
+
               FloatingActionButton.extended(
                 onPressed: () async {
                   //  print('FloatingActionButton pressed ...');
@@ -771,39 +848,39 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
           ),
         ],
       ),
-      appBar: AppBar(
-        backgroundColor: FlutterFlowTheme.of(context).secondaryWhite,
-        automaticallyImplyLeading: false,
-        actions: [
-          Align(
-            alignment: AlignmentDirectional(0, 0),
-            child: Text(
-              'Jonh Liam',
-              textAlign: TextAlign.center,
-              style: FlutterFlowTheme.of(context).title2.override(
-                    fontFamily: FlutterFlowTheme.of(context).title2Family,
-                    fontSize: 24,
-                  ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(17, 5, 0, 5),
-            child: Container(
-              width: 53,
-              height: 53,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-              ),
-              child: Image.network(
-                'https://picsum.photos/seed/492/600',
-              ),
-            ),
-          ),
-        ],
-        centerTitle: false,
-        elevation: 2,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: FlutterFlowTheme.of(context).secondaryWhite,
+      //   automaticallyImplyLeading: false,
+      //   // actions: [
+      //   //   Align(
+      //   //     alignment: AlignmentDirectional(0, 0),
+      //   //     child: Text(
+      //   //       'Jonh Liam',
+      //   //       textAlign: TextAlign.center,
+      //   //       style: FlutterFlowTheme.of(context).title2.override(
+      //   //             fontFamily: FlutterFlowTheme.of(context).title2Family,
+      //   //             fontSize: 24,
+      //   //           ),
+      //   //     ),
+      //   //   ),
+      //   //   Padding(
+      //   //     padding: EdgeInsetsDirectional.fromSTEB(17, 5, 0, 5),
+      //   //     child: Container(
+      //   //       width: 53,
+      //   //       height: 53,
+      //   //       clipBehavior: Clip.antiAlias,
+      //   //       decoration: BoxDecoration(
+      //   //         shape: BoxShape.circle,
+      //   //       ),
+      //   //       child: Image.network(
+      //   //         'https://picsum.photos/seed/492/600',
+      //   //       ),
+      //   //     ),
+      //   //   ),
+      //   // ],
+      //   centerTitle: false,
+      //   elevation: 2,
+      // ),
       body: SfDataGrid(
           gridLinesVisibility: GridLinesVisibility.both,
           headerGridLinesVisibility: GridLinesVisibility.both,
@@ -825,7 +902,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
           navigationMode: GridNavigationMode.cell,
           columnWidthMode: ColumnWidthMode.fitByColumnName,
           frozenColumnsCount: 1,
-          footerFrozenColumnsCount: 3,
+          footerFrozenColumnsCount: 2,
           source: _employeeDataSource,
           // ตัวนี้ ถ้าจำนวนไม่ตรงตามที่กำหนดไม่ว่าจะใส่ column name ถูกไหมก็จะ DataGridRowAdapter.cells.length: is not true
           // ถ้าใส่ไม่ตรงstackedHeaderRows ก้จะเป็นครอปตารางไปเลย
@@ -884,17 +961,19 @@ class EmployeeDataSource1 extends DataGridSource {
   List day = [1, 2];
   var d = 0;
   late List<DataGridRow> dataGridRows = [];
-  var counttime = 0;
+  int countItemName = 0;
 
 // เริ่ม fution ข้างใน
   List<DataGridCell> _getDataGridCall(
       {required List<Employee1> dataGridRow, required int number}) {
     try {
+      // ฟังชันนี้ถูกครอบด้วย for loop
       List<DataGridCell> dataGridCall = [];
       List<DataGridCell> dataGridName = [];
       // ตัวนี้คือ การอินพูดค่าซ้ำ
       List<DataGridCell> dataGridSum = [];
       List<DataGridCell> dataGridSumdata = [];
+      print("aaaaaaa $countItemName");
 
       dataGridName = [
         DataGridCell<String>(
@@ -902,11 +981,15 @@ class EmployeeDataSource1 extends DataGridSource {
       ];
 
       dataGridSumdata = [
-        DataGridCell<String>(columnName: 'average', value: "48ชั่วโมง/6พัด"),
-        DataGridCell<String>(columnName: 'median', value: "40ชั่วโมง/5พัด"),
+        // DataGridCell<String>(columnName: 'average', value: "48ชั่วโมง/6พัด"),
         DataGridCell<String>(
-            columnName: 'popular_base', value: "32ชั่วโมง/4พัด"),
+            columnName: 'median',
+            value: "${FFAppState().itemscount[countItemName]}"),
+        DataGridCell<String>(
+            columnName: 'popular_base',
+            value: "${int.parse(FFAppState().itemscount[countItemName]) * 8}"),
       ];
+      countItemName += 1;
       // _%${dataGridRow[i - 1].groupID}_%${dataGridRow[i - 1].id}_%${dataGridRow[i - 1].year}_%${dataGridRow[i - 1].month}_%${dataGridRow[i - 1].day}_%${dataGridRow[i - 1].group}_%${dataGridRow[i - 1].count}
       for (int i = 1; i <= number; i++) {
         dataGridCall = [
@@ -929,6 +1012,7 @@ class EmployeeDataSource1 extends DataGridSource {
         } else {
           // เริ่มผิดตรงนีัที่ใส่ข้อมูลเดิม
           dataGridSum = dataGridSum + dataGridCall;
+          print("ytytytyyt ${dataGridCall.first.value}");
         }
       }
       dataGridSum = dataGridSum + dataGridSumdata;
@@ -941,13 +1025,13 @@ class EmployeeDataSource1 extends DataGridSource {
       // ตัวนี้คือ การอินพูดค่าซ้ำ
       List<DataGridCell> dataGridSum = [];
       List<DataGridCell> dataGridSumdata = [];
-      print('ค่า duty ว่างหรือ errorอย่างอื้น รายละเอียด${error}');
+      print('ค่า duty ว่างหรือ errorอย่างอื้น รายละเอียด$error');
       dataGridName = [
         DataGridCell<String>(columnName: 'name', value: "null"),
       ];
 
       dataGridSumdata = [
-        DataGridCell<String>(columnName: 'average', value: "null"),
+        // DataGridCell<String>(columnName: 'average', value: "null"),
         DataGridCell<String>(columnName: 'median', value: "null"),
         DataGridCell<String>(columnName: 'popular_base', value: "null"),
       ];
@@ -1088,7 +1172,7 @@ class EmployeeDataSource1 extends DataGridSource {
           child: Text(showvalue),
         );
       } catch (error) {
-        print("เกิดข้อผิดพลาดตอนนำตารางมาแสดง ${error}");
+        print("เกิดข้อผิดพลาดตอนนำตารางมาแสดง $error");
 
         return Container(
           color: Colors.white,
@@ -1187,6 +1271,7 @@ class EmployeeDataSource1 extends DataGridSource {
     }
 
     submitCell();
+    return null;
   }
 
   // @override
@@ -1395,7 +1480,7 @@ class EmployeeDataSource1 extends DataGridSource {
             submitCell();
           }
         } catch (error) {
-          print("เกิดปัญตอนกด ${error}");
+          print("เกิดปัญตอนกด $error");
         }
       },
       child: Container(
@@ -1434,6 +1519,7 @@ class EmployeeDataSource1 extends DataGridSource {
 
     return InkWell(
       onTap: () async {
+        
         try {
           final futureAllMe = allMeModelFromJson(FFAppState().itemsduty);
           final dutyStore = futureAllMe[rowColumnIndex.rowIndex]
@@ -1568,7 +1654,7 @@ class EmployeeDataSource1 extends DataGridSource {
             //  print("กดดึก");
           }
         } catch (error) {
-          print("เกิดปัญหาตอนกดปุ่ม ${error}");
+          print("เกิดปัญหาตอนกดปุ่ม $error");
         }
         // submitCell();
       },

@@ -1,5 +1,8 @@
+import 'package:graphql_flutter/graphql_flutter.dart';
+
 import '../backend/api_requests/api_calls.dart';
 import '../backend/pubilc_.dart';
+import '../custom_code/actions/notifica.dart';
 import '../firstscreen/firstscreen_widget.dart';
 import '../flutter_flow/flutter_flow_calendar.dart';
 import '../flutter_flow/flutter_flow_theme.dart';
@@ -8,11 +11,12 @@ import '../custom_code/actions/index.dart' as actions;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
 
 import '../flutter_flow/flutter_flow_widgets.dart';
-import '../model/all_me_model.dart';
+import '../model/quly_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
+import '../custom_code/actions/index.dart' as actions;
 
 class WorkscheduleWidget extends StatefulWidget {
   const WorkscheduleWidget({Key? key}) : super(key: key);
@@ -26,6 +30,7 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   ApiCallResponse? logoutCallOutput;
   DateTimeRange? calendarSelectedDay;
+  late Future<String> getMall;
   // late Future<String> getMall;
 
   // Future<String> getMeallpubileinClass({required String token}) async {
@@ -60,11 +65,56 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
   //   return "";
   // }
 
+// Future<String> getMeallpubileinClass2({required String token}) async {
+//     if (mounted) {
+//       setState(() {});
+//     }
+//     try {
+//       final res = await http.get(
+//         Uri.parse("$url/api/group/schedule/me/all/new1"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Access-Control_Allow_Origin": "*",
+//           "x-access-token": "$token"
+//         },
+//       );
+//       // print("res type ${res.body.runtimeType}");
+//       // print("res ${res.body}");
+
+//       // เอา string ไปแล้ว decode เป็น json เอาไปเก็บในตัวแปร
+//       // final resBody = convert.jsonDecode(res.body);
+
+//       // print("res type ${resBody.runtimeType}");
+//       // print("resBody ${resBody["_id"]}");
+//       print("res.body ${res.body}");
+//       if (res.statusCode == 200) {
+//         await notifica(context, "โหลดตารางสำเร็จ", color: Colors.green);
+//         return res.body;
+//       } else {
+//         await notifica(context, "โหลดตารางไม่สำเร็จ");
+//         // setState(() {});
+//       }
+//     } catch (e) {
+//       print("error $e");
+
+//     }
+//     return "";
+//   }
+
   @override
   void initState() {
     super.initState();
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      print("หน้าแรกทำงาน");
+      // getMall = getMeallpubileinClass2(token: FFAppState().tokenStore);
+      // await getMall.then((getMeAllThen) {
+      //   print("ค่าวางไหม ${getMeAllThen.isEmpty}");
+
+      //   FFAppState().itemsduty = getMeAllThen;
+      //    print("บันทึกข้อมูล");
+      // });
+
       // crateTableOutput = await CreateTableCall.call();
       // if ((crateTableOutput?.statusCode ?? 200) == 200) {
       //   await actions.notifica(
@@ -172,6 +222,22 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
+                  // Query(
+                  //     options: QueryOptions(document: gql(productsGraphQL)),
+                  //     builder: (QueryResult result, {fetchMore, refetch}) {
+                  //       if (result.hasException) {
+                  //         return Text(result.exception.toString());
+                  //       }
+                  //       if (result.isLoading) {
+                  //         return Center(
+                  //           child: CircularProgressIndicator(),
+                  //         );
+                  //       }
+                  //       // final productList = Welcome.fromJson(result.data as Map<String, dynamic>);
+                  //       // print(productList);
+                  //       final productList = result.data;
+                  //       return Text("test${productList!["notifications"][0]["_id"]}");
+                  //     }),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.99,
                     decoration: BoxDecoration(
@@ -224,10 +290,9 @@ class _WorkscheduleWidgetState extends State<WorkscheduleWidget> {
                         // setState(() => FFAppState().tokenStore = '');
                         if (((logoutCallOutput?.statusCode ?? 200)) == 200) {
                           setState(() => FFAppState().tokenStore = '');
-                          await actions.notifica(
-                            context,
-                            'ออกจากระบบแล้ว',color: Colors.green
-                          );
+                          await actions.notifica(context, 'ออกจากระบบแล้ว',
+                              color: Colors.green);
+                          FFAppState().myID = "";
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
