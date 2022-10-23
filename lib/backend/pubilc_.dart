@@ -1,6 +1,6 @@
 import '../app_state.dart';
 
-final url = "https://b09f-2403-6200-8858-f0-c361-9441-5497-5597.ap.ngrok.io";
+final url = "https://a291-2403-6200-8858-f0-c361-9441-5497-5597.ap.ngrok.io";
 
 const productsGraphQL = """
 query ExampleQuery {

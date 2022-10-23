@@ -18,6 +18,7 @@ import '../model/all_me_model.dart';
 import 'package:flutter/services.dart';
 
 import '../model/saveduty_model.dart';
+// items.first.length คือจำนวนวันใช่ตัวนี้ค้นหาเพื่อแก้จำนวนวันซึ่งต้องแก้ครบทุกตัว
 
 class WorkcalendarWidget extends StatefulWidget {
   final String nameGroup;
@@ -151,10 +152,10 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
         // print("body to json ${FFAppState().itemsdutyList[widget.indexGroup]}}");
 
         FFAppState().itemsduty = res.body;
-        await notifica(context, "เลิกทำที่แก้แล้ว", color: Colors.green);
+        await notifica(context, "แสดงตารางสำเร็จ", color: Colors.green);
         return res.body;
       } else {
-        await notifica(context, "เลิกทำไม่สำเร็จ");
+        await notifica(context, "แสดงตารางไม่สำเร็จ");
       }
     } catch (e) {
       print("error $e");
@@ -498,14 +499,16 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
       if (items.isNotEmpty || items.length > 0) {
         // print("tar1$tar1");
         // print("item len ${items.first.length}");
-        print("items.first.length1 ${items.first.length}");
+        print("items.first.length1 ${items.last.length}");
+
+        // รวมถึงตรงนี้ด้วยเมื่อมีการเปลียนวัน
 
         _employeeDataSource =
-            EmployeeDataSource1(items, items.first.length - 1);
+            EmployeeDataSource1(items, items.first.length);
         currentPage = _employeeDataSource;
       } else {
         _employeeDataSource =
-            EmployeeDataSource1(items, items.first.length - 1);
+            EmployeeDataSource1(items, items.first.length);
         return Center(child: CircularProgressIndicator());
       }
     } catch (error) {
@@ -571,7 +574,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                       setState(() {
                         loadSave = true;
                       });
-                      updataschedule = await UpdateSchedule.call();
+                      updataschedule = await UpdateSchedule.call(groupID:widget.idGroup);
                       final gg = await UpdateSchedule.resUpdateSchedule(
                           updataschedule.jsonBody);
                       print("ooo" + gg.toString());
@@ -712,7 +715,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
             ),
           )));
     }
-
+    print("items.first.length ${items.first.length}");
     return Scaffold(
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -731,7 +734,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                   setState(() {
                     loadSave = true;
                   });
-                  updataschedule = await UpdateSchedule.call();
+                  updataschedule = await UpdateSchedule.call(groupID:widget.idGroup);
                   final gg =
                       UpdateSchedule.resUpdateSchedule(updataschedule.jsonBody);
                   print("ooo" + gg.toString());
@@ -821,7 +824,6 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                     });
                   }
                   await notifica(context, "จัดกลุ่มแล้ว", color: Colors.green);
-                
                 },
                 backgroundColor: FlutterFlowTheme.of(context).primaryGreen,
                 elevation: 10,
@@ -905,9 +907,7 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
       //   centerTitle: false,
       //   elevation: 2,
       // ),
-      body: Column(
-        children: [
-          // Text("${date.day}/${date.month}/${date.year}"),
+      // Text("${date.day}/${date.month}/${date.year}"),
           // TextButton(
           //     onPressed: () async {
           //       DateTime? newDate = await showDatePicker(
@@ -919,50 +919,49 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
           //       setState(() => date = newDate);
           //     },
           //     child: Text("aaaa")),
-          SfDataGrid(
-              // controller:,
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              allowColumnsResizing: true,
-              onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
-                print("details.width ${details.width}");
-                setState(() {
-                  columnWidths[details.column.columnName] = details.width;
-                });
-                return true;
-              },
-              // ยืดให้เต็มจอ
-              // columnWidthMode: ColumnWidthMode.lastColumnFill,
-              // highlightRowOnHover: true,
-              // 2 ตัวด้านล่าง ทำให้สามารถกดเลือกได้แค่เเค่ตัวเดียว
-              allowEditing: true,
-              editingGestureType: EditingGestureType.tap,
-              selectionMode: SelectionMode.single,
-              navigationMode: GridNavigationMode.cell,
-              columnWidthMode: ColumnWidthMode.fitByColumnName,
-              frozenColumnsCount: 1,
-              footerFrozenColumnsCount: 2,
-              source: _employeeDataSource,
-              // ตัวนี้ ถ้าจำนวนไม่ตรงตามที่กำหนดไม่ว่าจะใส่ column name ถูกไหมก็จะ DataGridRowAdapter.cells.length: is not true
-              // ถ้าใส่ไม่ตรงstackedHeaderRows ก้จะเป็นครอปตารางไปเลย
-              // ทดสอบเพิ่มคอรัม
-              // ห้ามใส่เป็น 0
-              columns: getColumns(items.first.length - 1, columnWidths),
-              stackedHeaderRows: <StackedHeaderRow>[
-                // ห้ามใส่เป็น 0
-                StackedHeaderRow(
-                    cells: _getStackedHeaderCell(items.first.length - 1)
-                    // ตัวนี้อาจจะไม่มีผลในการสร้างตารางซ้อน
+      body: SfDataGrid(
+          // controller:,
+          gridLinesVisibility: GridLinesVisibility.both,
+          headerGridLinesVisibility: GridLinesVisibility.both,
+          allowColumnsResizing: true,
+          onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
+            print("details.width ${details.width}");
+            setState(() {
+              columnWidths[details.column.columnName] = details.width;
+            });
+            return true;
+          },
+          // ยืดให้เต็มจอ
+          // columnWidthMode: ColumnWidthMode.lastColumnFill,
+          // highlightRowOnHover: true,
+          // 2 ตัวด้านล่าง ทำให้สามารถกดเลือกได้แค่เเค่ตัวเดียว
+          allowEditing: true,
+          editingGestureType: EditingGestureType.tap,
+          selectionMode: SelectionMode.single,
+          navigationMode: GridNavigationMode.cell,
+          columnWidthMode: ColumnWidthMode.fitByColumnName,
+          frozenColumnsCount: 1,
+          footerFrozenColumnsCount: 2,
+          source: _employeeDataSource,
+          // ตัวนี้ ถ้าจำนวนไม่ตรงตามที่กำหนดไม่ว่าจะใส่ column name ถูกไหมก็จะ DataGridRowAdapter.cells.length: is not true
+          // ถ้าใส่ไม่ตรงstackedHeaderRows ก้จะเป็นครอปตารางไปเลย
+          // ทดสอบเพิ่มคอรัม
+          // ห้ามใส่เป็น 0
+          // ใส่จำนวนวันของ items
+          columns: getColumns(items.first.length, columnWidths),
+          stackedHeaderRows: <StackedHeaderRow>[
+            // ห้ามใส่เป็น 0
+            StackedHeaderRow(
+                cells: _getStackedHeaderCell(items.first.length)
+                // ตัวนี้อาจจะไม่มีผลในการสร้างตารางซ้อน
 
-                    // StackedHeaderCell(
-                    //     columnNames: ['productId', 'product'],
-                    //     child: Container(
-                    //         color: const Color(0xFFF1F1F1),
-                    //         child: Center(child: Text('Product Details'))))
-                    )
-              ]),
-        ],
-      ),
+                // StackedHeaderCell(
+                //     columnNames: ['productId', 'product'],
+                //     child: Container(
+                //         color: const Color(0xFFF1F1F1),
+                //         child: Center(child: Text('Product Details'))))
+                )
+          ]),
     );
   }
 }

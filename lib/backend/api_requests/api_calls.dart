@@ -306,11 +306,11 @@ class UpdateApproveCall {
 }
 
 class UpdateSchedule {
-  static Future<ApiCallResponse> call() {
+  static Future<ApiCallResponse> call({required String groupID}) {
     // print("FFAppState().itemsduty22 ${FFAppState().itemsduty}");
     print("กำลังอัพเดต");
 
-    final body = '''{"duties":${FFAppState().itemsduty}}''';
+    final body = '''{"groupId":"$groupID","duties":${FFAppState().itemsduty}}''';
     print("bodyremeber: ${body}");
     return ApiManager.instance.makeApiCall(
       callName: 'updateSchedule',
@@ -319,6 +319,7 @@ class UpdateSchedule {
       headers: {
         'content-type': 'application/json; charset=UTF-8',
         'Access-Control_Allow_Origin': '*',
+        'x-access-token': '${FFAppState().tokenStore}',
       },
       // params: {
       //   'duties': duties
@@ -602,6 +603,7 @@ class AutoDutyCall {
       headers: {
         'content-type': 'application/json',
         'Access-Control_Allow_Origin': '*',
+        'x-access-token': '${FFAppState().tokenStore}',
       },
       params: {},
       bodyType: BodyType.NONE,

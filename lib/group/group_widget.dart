@@ -612,9 +612,10 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                         size: 40,
                                                       ),
                                                       onPressed: () async {
-                                                        final listseach =  await getManagerNotGroupModelsavalistseach(
-                                                            token: FFAppState()
-                                                                .tokenStore);
+                                                        final listseach =
+                                                            await getManagerNotGroupModelsavalistseach(
+                                                                token: FFAppState()
+                                                                    .tokenStore);
                                                         await showDialog(
                                                           context: context,
                                                           builder:
@@ -627,14 +628,12 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                 //         as List<
                                                                 //             MemberNotManagerGroup>,
                                                                 listvievDutySearch:
-                                                                    listseach
-                                                                        ,
+                                                                    listseach,
                                                                 nameGroup: ItemGroup
                                                                     .nameGroup
                                                                     .toString());
                                                           },
                                                         );
-                                                        
                                                       },
                                                     ),
                                                   ],
@@ -805,22 +804,47 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                             icon: Icon(
                                                                 Icons.close)),
                                                         IconButton(
-                                                            onPressed: () {
-                                                              if (_controllers[
+                                                            onPressed:
+                                                                () async {
+                                                              // print("_controllers ${(ItemGroup.member!.length - 1) <= int.parse(_controllers[
+                                                              //             indexGroup]
+                                                              //         .text)}");
+
+                                                              if ((ItemGroup.member!
+                                                                              .length -
+                                                                          1) <=
+                                                                      int.parse(
+                                                                          _controllers[indexGroup]
+                                                                              .text) &&
+                                                                  _controllers[
                                                                               indexGroup]
                                                                           .text
                                                                           .isNotEmpty !=
                                                                       null &&
                                                                   int.parse(
                                                                           "${_controllers[indexGroup].text.length}") >
-                                                                      0) ;
-                                                              print(
-                                                                  "999  ${_controllers[indexGroup].text}");
-                                                              updatalimitmember(
-                                                                  groupId:
-                                                                      "${ItemGroup.id}",
-                                                                  limit:
-                                                                      "${_controllers[indexGroup].text}");
+                                                                      0) {
+                                                                if (_controllers[indexGroup]
+                                                                            .text !=
+                                                                        "" &&
+                                                                    _controllers[indexGroup]
+                                                                            .text !=
+                                                                        "0") {
+                                                                  updatalimitmember(
+                                                                      groupId:
+                                                                          "${ItemGroup.id}",
+                                                                      limit:
+                                                                          "${_controllers[indexGroup].text}");
+                                                                } else {
+                                                                  await notifica(
+                                                                      context,
+                                                                      "กรุณากรอกข้อมูลให้ถูกต้อง");
+                                                                }
+                                                              } else{
+                                                                await notifica(
+                                                                      context,
+                                                                      "กรุณากรอกข้อมูลให้ถูกต้อง");
+                                                              }
                                                             },
                                                             icon: Icon(
                                                                 Icons.save))

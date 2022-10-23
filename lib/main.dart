@@ -245,21 +245,21 @@ class _NavBarPageState extends State<NavBarPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      currentIndex == 4 ? Icons.group : Icons.group,
-                      color: currentIndex == 4
+                      currentIndex == 3 ? Icons.group : Icons.group,
+                      color: currentIndex == 3
                           ? Color(0xFF00A2FD)
                           : Color(0xFF727272),
-                      size: currentIndex == 4 ? 26.0 : 23.0,
+                      size: currentIndex == 3 ? 26.0 : 23.0,
                     ),
                     Text(
                       'กลุ่ม',
                       overflow: TextOverflow.ellipsis,
                       style: FlutterFlowTheme.of(context).subtitle1.override(
                             fontFamily: 'Mitr',
-                            color: currentIndex == 4
+                            color: currentIndex == 3
                                 ? Color(0xFF00A2FD)
                                 : Color(0xFF727272),
-                            fontSize: currentIndex == 4 ? 26.0 : 23.0,
+                            fontSize: currentIndex == 3 ? 26.0 : 23.0,
                           ),
                       // TextStyle(
                       //   fontSize: currentIndex == 4 ? 35.0 : 30.0,
