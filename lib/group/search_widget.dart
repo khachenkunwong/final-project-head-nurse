@@ -57,7 +57,7 @@ class _SearchWidgetState extends State<SearchWidget> {
           _futureNotManagerGroup.members as List<MemberNotManagerGroup>;
 
       print(
-          "widget.listvievDutySearch ${widget.listvievDutySearch.first.email}");
+          "widget.listvievDutySearch ${widget.listvievDutySearch}");
       // for (int v = 0; v < widget.listvievDutySearch.length; v++) {
       // copySeach.add(widget.listvievDutySearch[v]);
       // }

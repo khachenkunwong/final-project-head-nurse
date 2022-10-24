@@ -50,6 +50,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   graphql_flutter: ^5.1.0
   expandable: ^5.0.1
+  badges: ^2.0.3
 
 dev_dependencies:
   flutter_launcher_icons: 0.9.3

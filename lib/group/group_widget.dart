@@ -209,15 +209,21 @@ class _GroupWidgetState extends State<GroupWidget> {
           for (var indexMemberNumber = 0;
               indexMemberNumber < futureMember[indexGroupNumber].member!.length;
               indexMemberNumber++) {
-            deleteLord.addEntries({
-              "refrest $indexGroupNumber $indexMemberNumber": false
-            }.entries);
+            print("refrest----$indexGroupNumber$indexMemberNumber${futureMember[indexGroupNumber].member![indexMemberNumber].id}");
+            setState(() {
+              
+            deleteLord.addAll({
+              "refrest$indexGroupNumber$indexMemberNumber${futureMember[indexGroupNumber].member![indexMemberNumber].id}":
+                  false
+            });
+            });
           }
           if (futureMember[indexGroupNumber].deleted == false) {
             showGroup.add(futureMember[indexGroupNumber]);
             // showGroup[indexGroupNumber] = ;
           }
         }
+        print("deleteLord ${deleteLord}");
         return futureMember;
       }
       await actions.notifica(
@@ -336,7 +342,7 @@ class _GroupWidgetState extends State<GroupWidget> {
       var request = http.Request('POST', Uri.parse('$url/graphql'));
       request.body =
           '''{"query":"mutation DeleteGroup(\$input: DeleteGroupInput!) {\\r\\n  deleteGroup(input: \$input)\\r\\n}","variables":{"input":{"groupId":"$groupId"}}}''';
-
+      print("delete group ${request.body}");
       request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();
@@ -756,7 +762,7 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                 "editLimit $editLimit  ${editLimit["$indexGroup"]}");
                                                           },
                                                           child: Text(
-                                                            '${ItemGroup.member!.length - 1}/',
+                                                            '${ItemGroup.member!.length}/',
                                                             style: GoogleFonts
                                                                 .getFont(
                                                               'Mitr',
@@ -811,8 +817,7 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                               //         .text)}");
 
                                                               if ((ItemGroup.member!
-                                                                              .length -
-                                                                          1) <=
+                                                                              .length ) <=
                                                                       int.parse(
                                                                           _controllers[indexGroup]
                                                                               .text) &&
@@ -840,10 +845,10 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                       context,
                                                                       "กรุณากรอกข้อมูลให้ถูกต้อง");
                                                                 }
-                                                              } else{
+                                                              } else {
                                                                 await notifica(
-                                                                      context,
-                                                                      "กรุณากรอกข้อมูลให้ถูกต้อง");
+                                                                    context,
+                                                                    "กรุณากรอกข้อมูลให้ถูกต้อง");
                                                               }
                                                             },
                                                             icon: Icon(
@@ -912,6 +917,8 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                         0) {
                                                                       return SizedBox();
                                                                     }
+                                                                    print(
+                                                                        "refrest 0 0 63517dcd270eff076b75e9bb ${deleteLord["refrest0063517dcd270eff076b75e9bb"]}");
 
                                                                     return Padding(
                                                                       key: Key(itemMember
@@ -970,11 +977,14 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                                 0,
                                                                                 20,
                                                                                 0),
-                                                                            child: deleteLord["refrest $indexGroup $indexMember"] == false
-                                                                                ? InkWell(
+                                                                            child: 
+                                                                            // deleteLord["refrest$indexGroup$indexMember${itemMember.id}"] == false
+                                                                            //     ? 
+                                                                                InkWell(
                                                                                     onTap: () async {
+
                                                                                       setState(() {
-                                                                                        deleteLord["refrest $indexGroup $indexMember"] = true;
+                                                                                        deleteLord["refrest$indexGroup$indexMember${itemMember.id}"] = true;
                                                                                       });
                                                                                       // print("yyyy ${ItemGroup.id} - ${itemMember.email}");
                                                                                       // getDeleteMember = await DeleteMemberInGroupCall.call(groupId: "${ItemGroup.id}", email: "${itemMember.email}", token: FFAppState().tokenStore);
@@ -984,7 +994,7 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                                       print("ทำงานเสร็จแล้ว");
                                                                                       if (mounted) {
                                                                                         setState(() {
-                                                                                          deleteLord["refrest $indexGroup $indexMember"] = false;
+                                                                                          deleteLord["refrest$indexGroup$indexMember${itemMember.id}"] = false;
                                                                                         });
                                                                                       }
                                                                                     },
@@ -1000,9 +1010,10 @@ class _GroupWidgetState extends State<GroupWidget> {
                                                                                     //       ),
                                                                                     // ),
                                                                                     )
-                                                                                : CircularProgressIndicator(
-                                                                                    color: Colors.red,
-                                                                                  ),
+                                                                                // : 
+                                                                                // CircularProgressIndicator(
+                                                                                //     color: Colors.red,
+                                                                                //   ),
                                                                           ),
                                                                         ],
                                                                       ),
