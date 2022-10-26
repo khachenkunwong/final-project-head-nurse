@@ -16,6 +16,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
 import '../model/changduty_model_get.dart';
+import '../model/getchangduty_v1_model.dart';
 import '../model/leave_model.dart';
 import '../model/showleave_model.dart';
 
@@ -34,9 +35,38 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
   late String calendarSelectedmonthString;
   late String calendarSelectedyearString;
   List dayDuty = ["เช้า", "บ่าย", "ดึก"];
+  Map dayDutyEngtoThai = {"morning": "เช้า", "noon": "บ่าย", "night": "ดึก"};
+  Map dayDutyNumber = {0: "ว่าง", 1: ""};
   late String stoteDuty;
   late String stoteDuty2;
   late Future<List<DatumLeave>> futureleave;
+
+  apporvechangeduty(
+      {required String idnotification, required bool approve}) async {
+    var headers = {
+      'Authorization': '${FFAppState().tokenStore}',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('$url/graphql'));
+
+    request.body =
+        '''{"query":"mutation ApproveSwitchLeader(\$input: ApproveSwitchLeaderInput!) {\\n  approveSwitchLeader(input: \$input)\\n}","variables":{"input":{"notificationID":"$idnotification","approve":$approve}}}''';
+    print("request.body ${request.body}");
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+      await notifica(context, "สำเร็จ", color: Colors.green);
+    } else {
+      print(response.reasonPhrase);
+      await notifica(
+        context,
+        "ไม่สำเร็จ",
+      );
+    }
+  }
 
   apporveLaeve({required String notificationId, required bool approve}) async {
     var headers = {
@@ -46,7 +76,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
     var request = http.Request('POST', Uri.parse('$url/graphql'));
     request.body =
         '''{"query":"mutation ApproveLeaveLeader(\$input: ApproveLeaveLeaderInput!) {\\r\\n  approveLeaveLeader(input: \$input)\\r\\n}","variables":{"input":{"notificationId":"$notificationId","approve":$approve}}}''';
-    print(request.body);
+    print("request.body ${request.body}");
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -819,6 +849,320 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                 //     ],
                 //   );
                 // }),
+                // แสดงเมื่อมีการแลกเวรตัวใหม่
+                Query(
+                    options:
+                        QueryOptions(document: gql(getchangduty), variables: {
+                      "filter": {"type": "SWITCH_DUTY"}
+                    }),
+                    builder: (QueryResult result, {fetchMore, refetch}) {
+                      if (result.hasException) {
+                        return Text(result.exception.toString());
+                      }
+                      if (result.isLoading) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (result.data?.isEmpty == true) {
+                        return SizedBox();
+                      }
+                      final shownotificationchang =
+                          GetchangdutyV1.fromJson(result.data!).notifications;
+                      print("result.data ${result.data}");
+                      if (shownotificationchang?.isEmpty == true) {
+                        return ElevatedButton(
+                            onPressed: () {
+                              refetch?.call();
+                            },
+                            child: Text("reload"));
+                      }
+
+                      return ListView.builder(
+                         physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          itemCount: shownotificationchang!.length,
+                          itemBuilder: (context, indexLeaderchangduty) {
+                            if (shownotificationchang[indexLeaderchangduty]
+                                    .noift !=
+                                "2") {
+                              return SizedBox();
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.99,
+                                // height: 400,
+                                color: Colors.white,
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          16, 16, 16, 0),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              SvgPicture.asset(
+                                                'assets/images/noti.svg',
+                                                width: 27.89,
+                                                height: 30.72,
+                                                fit: BoxFit.cover,
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(16, 0, 0, 0),
+                                                child: Text(
+                                                  "มีการขอแลกเวร",
+                                                  style: GoogleFonts.mitr(
+                                                    color: Color(0xff727272),
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            "วันนี้ 07:14 น.",
+                                            style: GoogleFonts.mitr(
+                                              color: Color(0xffbdbdbd),
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          16, 16, 0, 0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "ชื่อกลุ่ม: nameGroup",
+                                            style: GoogleFonts.mitr(
+                                              color: Color(0xff727272),
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          16, 0, 0, 16),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "คนที่ขอแลกเวร: fristName lastName",
+                                            style: GoogleFonts.mitr(
+                                              color: Color(0xff727272),
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          0, 0, 0, 16),
+                                      child: Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.95,
+                                        // height: 280,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Color(0xffececec),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "กรุณาเลือกเวร 1 ในนี้",
+                                                    style: GoogleFonts.mitr(
+                                                      color: Colors.red,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "วันที่ ${shownotificationchang[indexLeaderchangduty].fields?.withoutme?.day}/${shownotificationchang[indexLeaderchangduty].fields?.withoutme?.month}/${shownotificationchang[indexLeaderchangduty].fields?.withoutme?.year}",
+                                                    style: GoogleFonts.mitr(
+                                                      color: Color(0xff727272),
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    child: Card(
+                                                      clipBehavior: Clip
+                                                          .antiAliasWithSaveLayer,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryBlue02,
+                                                      elevation: 2,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    5, 5, 5, 5),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Container(
+                                                              width: 50,
+                                                              height: 50,
+                                                              clipBehavior: Clip
+                                                                  .antiAlias,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                              ),
+                                                              child:
+                                                                  Image.network(
+                                                                'https://picsum.photos/seed/260/600',
+                                                              ),
+                                                            ),
+                                                            Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .max,
+                                                              children: [
+                                                                Text(
+                                                                  '${shownotificationchang[indexLeaderchangduty].fields?.user?.fristName}',
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .title2,
+                                                                ),
+                                                                Text(
+                                                                  ' ${shownotificationchang[indexLeaderchangduty].fields?.user?.lastName}',
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .title2,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            Text(
+                                                              "${dayDutyNumber[shownotificationchang[indexLeaderchangduty].fields?.withoutme?.dutyNumber]}${dayDutyEngtoThai[shownotificationchang[indexLeaderchangduty].fields?.withoutme?.dutyString]}",
+                                                              // IndexWithOutDay เพราะ กรองindexที่จะเข้ามา
+                                                              // '${dayDuty[IndexWithOutList]}',
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .title2,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(0, 15, 0, 15),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: () async {
+                                                        await apporvechangeduty(
+                                                            idnotification:
+                                                                "${shownotificationchang[indexLeaderchangduty].id}",
+                                                            approve: true);
+                                                        // // ตัวนี้ต้องเช็คว่ามันโหลดไหม
+                                                        refetch!.call();
+                                                      },
+                                                      child: Text(
+                                                        'อนุมัติ',
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyText1
+                                                                .override(
+                                                                  fontFamily:
+                                                                      'Mitr',
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryColor,
+                                                                ),
+                                                      ),
+                                                    ),
+                                                    InkWell(
+                                                      onTap: () async {
+                                                        await apporvechangeduty(
+                                                            idnotification:
+                                                                "${shownotificationchang[indexLeaderchangduty].id}",
+                                                            approve: false);
+                                                        refetch!.call();
+                                                      },
+                                                      child: Text(
+                                                        'ปฏิเสธ',
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyText1
+                                                                .override(
+                                                                  fontFamily:
+                                                                      'Mitr',
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryRed,
+                                                                ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          });
+                    }),
 
                 Query(
                     options: QueryOptions(
@@ -840,6 +1184,13 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                       final shownotificationLeave =
                           ShownotificationLeave.fromJson(result.data!)
                               .notifications;
+                      if (shownotificationLeave?.isEmpty == true) {
+                        return ElevatedButton(
+                            onPressed: () {
+                              refetch?.call();
+                            },
+                            child: Text("reload"));
+                      }
                       print("shownotificationLeave ${result.data}");
                       return ListView.builder(
                           padding: EdgeInsets.zero,
@@ -1167,6 +1518,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                                     notificationId:
                                                         "${shownotificationLeave[indexGetLeaveMyDuty].id}",
                                                     approve: true);
+                                                refetch?.call();
                                               },
                                               child: Text(
                                                 'อนุมัติ',
@@ -1187,6 +1539,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                                     notificationId:
                                                         "${shownotificationLeave[indexGetLeaveMyDuty].id}",
                                                     approve: false);
+                                                refetch?.call();
                                               },
                                               child: Text(
                                                 'ปฏิเสธ',

@@ -1,6 +1,6 @@
 import '../app_state.dart';
 
-final url = "https://2e0f-2403-6200-8958-4ca2-dd53-4b82-a1b2-d960.ap.ngrok.io";
+final url = "https://373a-2403-6200-8958-4ca2-8850-bb85-f976-490e.ap.ngrok.io";
 
 const productsGraphQL = """
 query ExampleQuery {
@@ -28,3 +28,22 @@ query Notifications($filter: JSON) {
 final addporeshownotificationLeave = {
   "filter": {"type": "LEAVE_DUTY", "leader": "${FFAppState().myID}"}
 };
+const getchangduty = r"""
+query Query($filter: JSON) {
+  notifications(filter: $filter) {
+    _id
+    type
+    fields
+    approve_by {
+      frist_name
+      last_name
+      actor
+    }
+    noift
+    user {
+      frist_name
+      last_name
+    }
+  }
+}
+""";

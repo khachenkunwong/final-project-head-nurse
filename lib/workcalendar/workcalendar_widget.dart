@@ -731,9 +731,9 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
               FloatingActionButton.extended(
                 onPressed: () async {
                   // ยังกดไม่ได้จนกว่าจะแก้เอาเวรว่างออก
-                  setState(() {
-                    loadSave = true;
-                  });
+                  // setState(() {
+                  //   loadSave = true;
+                  // });
                   updataschedule = await UpdateSchedule.call(groupID:widget.idGroup);
                   final gg =
                       UpdateSchedule.resUpdateSchedule(updataschedule.jsonBody);
@@ -744,23 +744,23 @@ class _WorkcalendarWidgetState extends State<WorkcalendarWidget> {
                     //   getmeall.then((getMeAllThen2) {
                     //   FFAppState().itemsduty = getMeAllThen2;
                     // });
-                    if (mounted) {
-                      setState(() {
-                        // getMeallpubileinClass(token: FFAppState().tokenStore);
-                        loadSave = false;
-                      });
-                    }
+                    // if (mounted) {
+                    //   // setState(() {
+                    //   //   // getMeallpubileinClass(token: FFAppState().tokenStore);
+                    //   //   loadSave = false;
+                    //   // });
+                    // }
                     await actions.notifica(
                       context,
                       'บันทึกแล้ว',
                       color: Colors.green,
                     );
                   } else {
-                    if (mounted) {
-                      setState(() {
-                        loadSave = false;
-                      });
-                    }
+                    // if (mounted) {
+                    //   setState(() {
+                    //     loadSave = false;
+                    //   });
+                    // }
                     await actions.notifica(
                       context,
                       'บันทึกไม่สำเร็จ',
