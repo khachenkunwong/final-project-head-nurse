@@ -37,7 +37,7 @@ class Notification {
     String? id;
     String? type;
     Fields? fields;
-    dynamic approveBy;
+    ApproveBy? approveBy;
     String? noift;
     NotificationUser? user;
 
@@ -45,7 +45,7 @@ class Notification {
         id: json["_id"] == null ? null : json["_id"],
         type: json["type"] == null ? null : json["type"],
         fields: json["fields"] == null ? null : Fields.fromJson(json["fields"]),
-        approveBy: json["approve_by"],
+        approveBy: json["approve_by"] == null ? null : ApproveBy.fromJson(json["approve_by"]),
         noift: json["noift"] == null ? null : json["noift"],
         user: json["user"] == null ? null : NotificationUser.fromJson(json["user"]),
     );
@@ -54,9 +54,33 @@ class Notification {
         "_id": id == null ? null : id,
         "type": type == null ? null : type,
         "fields": fields == null ? null : fields?.toJson(),
-        "approve_by": approveBy,
+        "approve_by": approveBy == null ? null : approveBy?.toJson(),
         "noift": noift == null ? null : noift,
         "user": user == null ? null : user?.toJson(),
+    };
+}
+
+class ApproveBy {
+    ApproveBy({
+        this.fristName,
+        this.lastName,
+        this.actor,
+    });
+
+    String? fristName;
+    String? lastName;
+    String? actor;
+
+    factory ApproveBy.fromJson(Map<String, dynamic> json) => ApproveBy(
+        fristName: json["frist_name"] == null ? null : json["frist_name"],
+        lastName: json["last_name"] == null ? null : json["last_name"],
+        actor: json["actor"] == null ? null : json["actor"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "frist_name": fristName == null ? null : fristName,
+        "last_name": lastName == null ? null : lastName,
+        "actor": actor == null ? null : actor,
     };
 }
 
@@ -65,22 +89,26 @@ class Fields {
         this.me,
         this.withoutme,
         this.user,
+        this.approve,
     });
 
     Me? me;
     Me? withoutme;
     FieldsUser? user;
+    bool? approve;
 
     factory Fields.fromJson(Map<String, dynamic> json) => Fields(
         me: json["me"] == null ? null : Me.fromJson(json["me"]),
         withoutme: json["withoutme"] == null ? null : Me.fromJson(json["withoutme"]),
         user: json["user"] == null ? null : FieldsUser.fromJson(json["user"]),
+        approve: json["approve"] == null ? null : json["approve"],
     );
 
     Map<String, dynamic> toJson() => {
         "me": me == null ? null : me?.toJson(),
         "withoutme": withoutme == null ? null : withoutme?.toJson(),
         "user": user == null ? null : user?.toJson(),
+        "approve": approve == null ? null : approve,
     };
 }
 

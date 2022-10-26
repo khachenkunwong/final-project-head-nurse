@@ -923,7 +923,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                                   "มีการขอแลกเวร",
                                                   style: GoogleFonts.mitr(
                                                     color: Color(0xff727272),
-                                                    fontSize: 18,
+                                                    fontSize: 24,
                                                   ),
                                                 ),
                                               ),
@@ -933,7 +933,7 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                             "วันนี้ 07:14 น.",
                                             style: GoogleFonts.mitr(
                                               color: Color(0xffbdbdbd),
-                                              fontSize: 14,
+                                              fontSize: 24,
                                             ),
                                           ),
                                         ],
@@ -947,10 +947,10 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                             MainAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "ชื่อกลุ่ม: nameGroup",
+                                            "ชื่อกลุ่ม: ${shownotificationchang[indexLeaderchangduty].fields?.me?.group}",
                                             style: GoogleFonts.mitr(
                                               color: Color(0xff727272),
-                                              fontSize: 16,
+                                              fontSize: 20,
                                             ),
                                           ),
                                         ],
@@ -964,10 +964,10 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                             MainAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "คนที่ขอแลกเวร: fristName lastName",
+                                            "คนที่ขอแลกเวร: ${shownotificationchang[indexLeaderchangduty].fields?.user?.fristName} ${shownotificationchang[indexLeaderchangduty].fields?.user?.lastName}",
                                             style: GoogleFonts.mitr(
                                               color: Color(0xff727272),
-                                              fontSize: 16,
+                                              fontSize: 20,
                                             ),
                                           ),
                                         ],
@@ -1006,14 +1006,14 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                                     "กรุณาเลือกเวร 1 ในนี้",
                                                     style: GoogleFonts.mitr(
                                                       color: Colors.red,
-                                                      fontSize: 16,
+                                                      fontSize: 20,
                                                     ),
                                                   ),
                                                   Text(
                                                     "วันที่ ${shownotificationchang[indexLeaderchangduty].fields?.withoutme?.day}/${shownotificationchang[indexLeaderchangduty].fields?.withoutme?.month}/${shownotificationchang[indexLeaderchangduty].fields?.withoutme?.year}",
                                                     style: GoogleFonts.mitr(
                                                       color: Color(0xff727272),
-                                                      fontSize: 16,
+                                                      fontSize: 20,
                                                     ),
                                                   ),
                                                   Container(
@@ -1092,6 +1092,99 @@ class _NotificationsWidgetState extends State<NotificationsWidget> {
                                                   ),
                                                 ],
                                               ),
+                                              Center(child: Icon(Icons.change_circle,size: 40,)),
+                                              Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  
+                                                  Text(
+                                                    "วันที่ ${shownotificationchang[indexLeaderchangduty].fields?.me?.day}/${shownotificationchang[indexLeaderchangduty].fields?.me?.month}/${shownotificationchang[indexLeaderchangduty].fields?.me?.year}",
+                                                    style: GoogleFonts.mitr(
+                                                      color: Color(0xff727272),
+                                                      fontSize: 20,
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    child: Card(
+                                                      clipBehavior: Clip
+                                                          .antiAliasWithSaveLayer,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryBlue02,
+                                                      elevation: 2,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    5, 5, 5, 5),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Container(
+                                                              width: 50,
+                                                              height: 50,
+                                                              clipBehavior: Clip
+                                                                  .antiAlias,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                              ),
+                                                              child:
+                                                                  Image.network(
+                                                                'https://picsum.photos/seed/260/600',
+                                                              ),
+                                                            ),
+                                                            Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .max,
+                                                              children: [
+                                                                Text(
+                                                                  '${shownotificationchang[indexLeaderchangduty].approveBy?.fristName}',
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .title2,
+                                                                ),
+                                                                Text(
+                                                                  ' ${shownotificationchang[indexLeaderchangduty].approveBy?.lastName}',
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .title2,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            Text(
+                                                              "${dayDutyNumber[shownotificationchang[indexLeaderchangduty].fields?.me?.dutyNumber]}${dayDutyEngtoThai[shownotificationchang[indexLeaderchangduty].fields?.me?.dutyString]}",
+                                                              // IndexWithOutDay เพราะ กรองindexที่จะเข้ามา
+                                                              // '${dayDuty[IndexWithOutList]}',
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .title2,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              
                                               Padding(
                                                 padding: EdgeInsetsDirectional
                                                     .fromSTEB(0, 15, 0, 15),
